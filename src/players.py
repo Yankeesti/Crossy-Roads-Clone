@@ -3,37 +3,34 @@ import pygame
 import config
 
 class PlayerManager():
-    def __init__(self):
-        self.players = []
-
-    def add_player(self,player):
-        self.players.append(player)
-        self.add(player)
-
+    def __init__(self,players = []):
+        self.players = players
+        self.sort_players()
+    
+    def sort_players(self):
+        self.players.sort(key=lambda x: x.rect.y, reverse=True)
+        
     def remove_player(self,player):
         self.players.remove(player)
         self.remove(player)
 
-    def get_player(self):
-        return self.players[0]
+    def sort_players(self):
+        self.players.sort(key=lambda x: x.rect.y, reverse=True)
 
     def update(self):
         for player in self.players:
             player.update()
+        self.sort_players() 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self,current_roads_section):
+    def __init__(self,surface = config.PLAYER_IMAGE):
         super().__init__()
-        self.image = config.PLAYER_IMAGE
+        self.image = surface
         self.rect = self.image.get_rect()
-        self.x_position = 5
-        self.y_position = 0
-        self.kill_time = config.MAX_TICKS_ON_ROAD_SECTION
-        self.score = 0
-        self.current_roads_section = current_roads_section
-        self.current_roads_section.add(self)
+        self.rect.bottomleft = ((config.ROAD_COLUMNS // 2+1)*config.BLOCK_SIZE,0 )
         
-    
+    def setManager(self,manager):
+        self.manager = manager
     def move_left(self):
         self.x_position -= 1
     def move_right(self):
@@ -44,8 +41,9 @@ class Player(pygame.sprite.Sprite):
         self.y_position -= 1
 
 class HumanClient(Player):
-    def __init__(self,current_roads_section):
-        super().__init__(current_roads_section)
+    def __init__(self):
+        image = config.PLAYER_IMAGE
+        super().__init__(image)
         self.image.fill((255, 0, 0))
 
     def update(self):
