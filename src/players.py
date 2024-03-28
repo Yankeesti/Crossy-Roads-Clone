@@ -3,8 +3,8 @@ import pygame
 import config
 
 class PlayerManager():
-    def __init__(self,players = []):
-        self.players = players
+    def __init__(self,road_section_manager : map.RoadSectionManager,controllers):
+        self.players = [Player(road_section_manager.road_sections[0],controller) for controller in controllers]
         self.sort_players()
     
     def sort_players(self):
@@ -23,12 +23,27 @@ class PlayerManager():
         self.sort_players() 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self,surface = config.PLAYER_IMAGE):
+    def __init__(self,currentSection:map.RoadSection,controller):
         super().__init__()
-        self.image = surface
+        self.image = config.PLAYER_IMAGE
+        self.image.fill((255, 0, 0))
         self.rect = self.image.get_rect()
         self.rect.bottomleft = ((config.ROAD_COLUMNS // 2+1)*config.BLOCK_SIZE,0 )
-        
+        self.sections = [currentSection]
+        currentSection.add_player(self)
+        self.controller = controller
+
+    def update(self):
+        action = self.controller.get_action()
+        if action == "left":
+            self.move_left()
+        elif action == "right":
+            self.move_right()
+        elif action == "up":
+            self.move_up()
+        elif action == "down":
+            self.move_down()
+
     def setManager(self,manager):
         self.manager = manager
     def move_left(self):
@@ -40,27 +55,18 @@ class Player(pygame.sprite.Sprite):
     def move_down(self):
         self.y_position -= 1
 
-class HumanClient(Player):
+class HumanController():
     def __init__(self):
-        image = config.PLAYER_IMAGE
-        super().__init__(image)
-        self.image.fill((255, 0, 0))
-
-    def update(self):
-        self.kill_time -= 1
-        if self.kill_time <= 0:
-            print("You died score: ",self.score)
-            self.kill()
-        self.key_press()
-    
-    def key_press(self):
-       for event in pygame.event.get():
-           if event.type == pygame.KEYDOWN:
-               if event.key == pygame.K_a:
-                   self.move_left()
-               if event.key == pygame.K_d:
-                   self.move_right()
-               if event.key == pygame.K_w:
-                   self.move_up()
-               if event.key == pygame.K_s:
-                   self.move_down()
+        pass
+    def get_action(self):
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_a:
+                    return "left"
+                if event.key == pygame.K_d:
+                    return "right"
+                if event.key == pygame.K_w:
+                    return "up"
+                if event.key == pygame.K_s:
+                    return "down"
+        return "stay"

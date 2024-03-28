@@ -2,6 +2,7 @@ import unittest
 import pygame
 import config
 from map import RoadSectionManager
+from map import RoadSectionManagerSingleton
 from players import *
 
 class test_RoadSectionManager(unittest.TestCase):
