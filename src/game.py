@@ -8,53 +8,47 @@ import players
 
 WIN = pygame.display.set_mode((config.WINDOW_WIDTH, config.WINDOW_HEIGHT))
 
-road_section_manager = map.RoadSectionManager()
-
-
-
-def draw_window():
-    WIN.fill((255, 255, 255))
-    road_section_manager.draw(WIN)
-    pygame.display.update()
-
-def main(controllers = [game_objects.HumanController()]):
-    clock = pygame.time.Clock()
-    draw_window()
-    road_section_manager.generate_sections(config.DISPLAYED_ROAD_SECTIONS+5)
-    while run:
-        clock.tick(60)
-        run = key_handler.handle_key_press()["run"]
-        i+= 1
-        if i% 10 == 0:
-            player.remove(playerSprite)
-        if(i % 20 == 0):
-            player.add(playerSprite)
-        draw_window()
-    pygame.quit()
-
-class Camera(pygame.sprite.Group):
-    def __init__(self,road_section_manager:map.RoadSectionManager,player_manager:players.PlayerManager) -> None:
+class Camera():
+    def __init__(self) -> None:
         super().__init__()
+        self.road_section_manager = map.RoadSectionManager()
+        self.player_manager = players.PlayerManager([])
+        self.display_surface = pygame.display.get_surface()
 
-    def draw(self):
-        pass
+    def draw(self,player:players.Player):
+        y_offset = player.rect[1] - (config.DISPLAYED_ROAD_SECTIONS-3)*config.BLOCK_SIZE
+        for section in player.sections[0].get_sections_to_draw():
+            if section is None:
+                for i,section in enumerate(player.sections[0].get_sections_to_draw()):
+                    if section is None:
+                        print(i," : None")
+                    else:
+                        print(i," : ",section.index)
+            self.display_surface.blit(section.image,(0,section.rect[1] - y_offset))
+        for player in self.player_manager.players:
+            self.display_surface.blit(player.image,(player.rect[0],player.rect[1] - y_offset))
+        pygame.display.update()
+        
 
 class Game:
-    def __init__(self,controllers = [game_objects.HumanController()]):
+    def __init__(self,controllers=[key_handler.HumanController()]):
         self.road_section_manager = map.RoadSectionManager()
-        self.playerManager = players.PlayerManager(road_section_manager = road_section_manager,controllers= controllers)
+        self.playerManager = players.PlayerManager(controllers= controllers)
         self.road_section_manager.generate_sections(config.DISPLAYED_ROAD_SECTIONS+3)
+        self.camera = Camera()
 
     def main(self):
         clock = pygame.time.Clock()
-        draw_window()
+        self.camera.draw(self.playerManager.min_player)
+        run = True
         while run:
             clock.tick(60)
             run = key_handler.handle_key_press()["run"]
             self.playerManager.update()
-            self.playerManager.update()
-            draw_window()
+            self.road_section_manager.update()
+            self.camera.draw(self.playerManager.min_player)
         pygame.quit()
 
 if __name__ == "__main__":
-    main()
+    game = Game()
+    game.main()

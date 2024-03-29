@@ -1,72 +1,79 @@
 from typing import Any
 import pygame
 import config
+import map
+import key_handler
+import queue
 
-class PlayerManager():
-    def __init__(self,road_section_manager : map.RoadSectionManager,controllers):
-        self.players = [Player(road_section_manager.road_sections[0],controller) for controller in controllers]
-        self.sort_players()
+class PlayerManager(object):
+    """"Manager for all players in the game. Singleton class. should only be created when RoadSectionManager was created."""
+    _instance = None
+    def __new__(cls,controllers = [key_handler.HumanController()]):
+        if cls._instance is None:
+            cls._instance = super(PlayerManager, cls).__new__(cls)
+            cls._instance.players = []
+            cls._instance.road_section_manager = map.RoadSectionManager()
+            cls._instance.players = [Player(cls._instance.road_section_manager.road_sections[0],controller) for controller in controllers]
+            cls._instance.min_player = max(cls._instance.players,key=lambda x: x.rect.y)
+            cls._instance.max_player = min(cls._instance.players,key=lambda x: x.rect.y)
+        return cls._instance
     
-    def sort_players(self):
-        self.players.sort(key=lambda x: x.rect.y, reverse=True)
-        
     def remove_player(self,player):
         self.players.remove(player)
         self.remove(player)
-
-    def sort_players(self):
-        self.players.sort(key=lambda x: x.rect.y, reverse=True)
-
+    
     def update(self):
         for player in self.players:
             player.update()
-        self.sort_players() 
+        self.min_player = max(self.players,key=lambda x: x.rect[1])
+        self.max_player = min(self.players,key=lambda x: x.rect[1])
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self,currentSection:map.RoadSection,controller):
+    def __init__(self,currentSection,controller):
         super().__init__()
         self.image = config.PLAYER_IMAGE
         self.image.fill((255, 0, 0))
         self.rect = self.image.get_rect()
-        self.rect.bottomleft = ((config.ROAD_COLUMNS // 2+1)*config.BLOCK_SIZE,0 )
+        self.rect.bottomleft = ((config.ROAD_COLUMNS // 2)*config.BLOCK_SIZE,0 )
         self.sections = [currentSection]
         currentSection.add_player(self)
         self.controller = controller
+        self.moves = queue.Queue()
 
     def update(self):
-        action = self.controller.get_action()
-        if action == "left":
-            self.move_left()
-        elif action == "right":
-            self.move_right()
-        elif action == "up":
-            self.move_up()
-        elif action == "down":
-            self.move_down()
+        if self.moves.empty() == False:
+            self.moves.get()()
+        else:
+            action = self.controller.get_action()
+            if action == "left":
+                for i in range(1,config.PLAYER_SPEED):
+                    self.moves.put(self.move_left)
+                self.move_left()
+            elif action == "right":
+                for i in range(1,config.PLAYER_SPEED):
+                    self.moves.put(self.move_right)
+                self.move_right()
+            elif action == "up":
+                for i in range(1,config.PLAYER_SPEED):
+                    self.moves.put(self.move_up)
+                self.move_up()
+                self.moves.put(lambda : setattr(self,"sections",[self.sections[0].next_section]))
+            elif action == "down":
+                self.sections = [self.sections[0].previous_section]
+                for i in range(1,config.PLAYER_SPEED):
+                    self.moves.put(self.move_down)
+                self.move_down()
 
     def setManager(self,manager):
         self.manager = manager
     def move_left(self):
-        self.x_position -= 1
+        self.rect[0]-= config.BLOCK_SIZE//config.PLAYER_SPEED
     def move_right(self):
-        self.x_position += 1
+        self.rect[0] += config.BLOCK_SIZE//config.PLAYER_SPEED
     def move_up(self):
-        self.y_position += 1
-    def move_down(self):
-        self.y_position -= 1
+        self.rect[1] -= config.BLOCK_SIZE//config.PLAYER_SPEED
+        
+    def move_down(self,ticks_left = 1):
+        self.rect[1] += config.BLOCK_SIZE//config.PLAYER_SPEED
 
-class HumanController():
-    def __init__(self):
-        pass
-    def get_action(self):
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_a:
-                    return "left"
-                if event.key == pygame.K_d:
-                    return "right"
-                if event.key == pygame.K_w:
-                    return "up"
-                if event.key == pygame.K_s:
-                    return "down"
-        return "stay"
+
