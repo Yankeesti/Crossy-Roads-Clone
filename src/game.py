@@ -23,13 +23,8 @@ class Camera():
     def draw(self,player:players.Player):
         y_offset = player.rect[1] - (config.DISPLAYED_ROAD_SECTIONS-3)*config.BLOCK_SIZE
         for section in player.sections[0].get_sections_to_draw():
-            if section is None:
-                for i,section in enumerate(player.sections[0].get_sections_to_draw()):
-                    if section is None:
-                        print(i," : None")
-                    else:
-                        print(i," : ",section.index)
-            self.display_surface.blit(section.image,(0,section.rect[1] - y_offset))
+            section.draw(self.display_surface,y_offset)
+            # self.display_surface.blit(section.image,(0,section.rect[1] - y_offset))
         for player in self.player_manager.players:
             self.display_surface.blit(player.image,(player.rect[0],player.rect[1] - y_offset))
         #drawn grey transparent rectangle to highlight unplayable area

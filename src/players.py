@@ -46,23 +46,28 @@ class Player(pygame.sprite.Sprite):
         else:
             action = self.controller.get_action()
             if action == "left":
-                for i in range(1,config.PLAYER_SPEED):
-                    self.moves.put(self.move_left)
-                self.move_left()
+                if self.check_move_possible((-config.BLOCK_SIZE,0)):
+                    for i in range(1,config.PLAYER_SPEED):
+                        self.moves.put(self.move_left)
+                    self.move_left()
+
             elif action == "right":
-                for i in range(1,config.PLAYER_SPEED):
-                    self.moves.put(self.move_right)
-                self.move_right()
+                if self.check_move_possible((config.BLOCK_SIZE,0)):
+                    for i in range(1,config.PLAYER_SPEED):
+                        self.moves.put(self.move_right)
+                    self.move_right()
             elif action == "up":
-                for i in range(1,config.PLAYER_SPEED):
-                    self.moves.put(self.move_up)
-                self.move_up()
-                self.moves.put(lambda : setattr(self,"sections",[self.sections[0].next_section]))
+                if self.check_move_possible((0,-config.BLOCK_SIZE)):
+                    for i in range(1,config.PLAYER_SPEED):
+                        self.moves.put(self.move_up)
+                    self.move_up()
+                    self.moves.put(lambda : setattr(self,"sections",[self.sections[0].next_section]))
             elif action == "down":
-                self.sections = [self.sections[0].previous_section]
-                for i in range(1,config.PLAYER_SPEED):
-                    self.moves.put(self.move_down)
-                self.move_down()
+                if self.check_move_possible((0,config.BLOCK_SIZE)):
+                    self.sections = [self.sections[0].previous_section]
+                    for i in range(1,config.PLAYER_SPEED):
+                        self.moves.put(self.move_down)
+                    self.move_down()
 
     def setManager(self,manager):
         self.manager = manager
@@ -75,5 +80,14 @@ class Player(pygame.sprite.Sprite):
         
     def move_down(self,ticks_left = 1):
         self.rect[1] += config.BLOCK_SIZE//config.PLAYER_SPEED
+
+    def check_move_possible(self,move):
+        self.rect.move_ip(move)
+        for section in self.sections:
+            if pygame.sprite.spritecollide(self,section.blocked_columns,False):
+                self.rect.move_ip((-move[0],-move[1]))
+                return False
+        self.rect.move_ip((-move[0],-move[1]))
+        return True
 
 
