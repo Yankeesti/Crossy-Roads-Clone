@@ -7,6 +7,11 @@ import players
 
 
 WIN = pygame.display.set_mode((config.WINDOW_WIDTH, config.WINDOW_HEIGHT))
+pygame.display.set_caption("Crossy Roads")
+
+BORDER_SURFACE = pygame.Surface((config.BLOCK_SIZE*config.UNSTEPABLEE_COLUMNS, config.WINDOW_HEIGHT))
+BORDER_SURFACE.fill((0,0,0))
+BORDER_SURFACE.set_alpha(128)
 
 class Camera():
     def __init__(self) -> None:
@@ -27,6 +32,9 @@ class Camera():
             self.display_surface.blit(section.image,(0,section.rect[1] - y_offset))
         for player in self.player_manager.players:
             self.display_surface.blit(player.image,(player.rect[0],player.rect[1] - y_offset))
+        #drawn grey transparent rectangle to highlight unplayable area
+        self.display_surface.blit(BORDER_SURFACE,(0,0))
+        self.display_surface.blit(BORDER_SURFACE,(config.WINDOW_WIDTH - config.BLOCK_SIZE*config.UNSTEPABLEE_COLUMNS,0))
         pygame.display.update()
         
 
