@@ -15,8 +15,9 @@ WINDOW_HEIGHT = BLOCK_SIZE * DISPLAYED_ROAD_SECTIONS
 
 #Player settings
 PLAYER_IMAGE = pygame.Surface((BLOCK_SIZE, BLOCK_SIZE))
-MAX_TICKS_ON_ROAD_SECTION = 120
-PLAYER_SPEED = 20 #Ticks needed to move 1 Block
+MAX_BLOCKS_BACK = 3
+BACK_BORDER_MOVEMENT_SPEED = 0.01#Blocks per Ticj
+PLAYER_SPEED = 10 #Ticks needed to move 1 Block
 
 
 

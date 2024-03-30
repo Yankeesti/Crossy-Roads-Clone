@@ -19,7 +19,7 @@ class Camera():
         self.road_section_manager = map.RoadSectionManager()
         self.player_manager = players.PlayerManager([])
         self.display_surface = pygame.display.get_surface()
-
+        
     def draw(self,player:players.Player):
         y_offset = player.rect[1] - (config.DISPLAYED_ROAD_SECTIONS-3)*config.BLOCK_SIZE
         for section in player.sections[0].get_sections_to_draw():
@@ -47,9 +47,10 @@ class Game:
         while run:
             clock.tick(60)
             run = key_handler.handle_key_press()["run"]
-            self.playerManager.update()
+            run = self.playerManager.update()
             self.road_section_manager.update()
             self.camera.draw(self.playerManager.min_player)
+        print(self.playerManager.dead_players)
         pygame.quit()
 
 if __name__ == "__main__":
