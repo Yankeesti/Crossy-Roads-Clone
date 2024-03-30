@@ -1,6 +1,7 @@
 from typing import Any
 import pygame
 import config
+import obstacles
 
 class RoadSectionManager(object):
     _instance = None
@@ -38,17 +39,6 @@ class RoadSection(pygame.sprite.Sprite):
         self.sections_to_draw = None
         self.road_section_manager = RoadSectionManager()
         self.blocked_columns = pygame.sprite.Group()
-        # self.set_blocked_columns() 
-        
-    def set_blocked_columns(self):
-        transparent_surface = pygame.Surface((config.BLOCK_SIZE*config.UNSTEPABLEE_COLUMNS,config.BLOCK_SIZE),pygame.SRCALPHA)
-        transparent_surface.fill((0,0,0,0))
-        left_blocking_section = BlockingSection(transparent_surface)
-        left_blocking_section.rect.bottomleft = self.rect.bottomleft
-        self.blocked_columns.add(left_blocking_section)
-        right_blocking_section = BlockingSection(transparent_surface)
-        right_blocking_section.rect.bottomright = self.rect.bottomright
-        self.blocked_columns.add(right_blocking_section)
     
     def get_sections_to_draw(self):
         if self.sections_to_draw is not None:
@@ -78,7 +68,7 @@ class RoadSection(pygame.sprite.Sprite):
             surface.blit(blocking_section.image,(blocking_section.rect[0],blocking_section.rect[1] - y_offset))
 
 class StaticRoadSection(RoadSection):
-    def __init__(self,index,previeous_section = None,next_section = None):
+    def __init__(self,index,previeous_section = None,next_section = None,static_obstacles= obstacles.ObstacleFactory([0],"STATIC")):
         image = pygame.Surface((config.WINDOW_WIDTH, config.BLOCK_SIZE),pygame.SRCALPHA)
         if(index % 2 == 0):
             image.fill((37, 255, 0,255))
@@ -92,8 +82,3 @@ class StaticRoadSection(RoadSection):
     def update(self):
         pass
 
-class BlockingSection(pygame.sprite.Sprite):
-    def __init__(self,surface):
-        super().__init__()
-        self.image = surface
-        self.rect = surface.get_rect()

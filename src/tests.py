@@ -1,10 +1,9 @@
 import unittest
-import pygame
 import config
 from map import RoadSectionManager
 from players import *
-import map
 from key_handler import HumanController
+from obstacles import Obstacle
 
 # class test_Player(unittest.TestCase):
 #     def test_correct_positioning(self):
@@ -191,6 +190,23 @@ class test_PlayerManager(unittest.TestCase):
         player_manager.update()
         self.assertIs(player_manager.min_player,player_manager.players[2])
         self.assertIs(player_manager.max_player,player_manager.players[1])
+
+class test_Obstacle(unittest.TestCase):
+    def setUp(self) -> None:
+        reset_singletons()
+    
+    def test_correct_positioning(self):
+        config.BLOCK_SIZE = 10
+        sectionManager = RoadSectionManager()
+        road_section = sectionManager.road_sections[0]
+        obstacle = Obstacle(pygame.Surface((config.WINDOW_WIDTH, config.BLOCK_SIZE),pygame.SRCALPHA),95)
+        obstacle.adjust_y(road_section)
+        self.assertEqual(obstacle.rect.midleft,(95,-5))
+
+        sectionManager.generate_sections(1)
+        road_section = sectionManager.road_sections[1]
+        obstacle.adjust_y(road_section)
+        self.assertEqual(obstacle.rect.midleft,(95,-15))
 
 if __name__ == '__main__':
     unittest.main()

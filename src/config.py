@@ -1,23 +1,20 @@
 import pygame
-
-#Road settings
-ROAD_COLUMNS = 9
-
-#Game settings
 BLOCK_SIZE = 100
+ROAD_COLUMNS = 9
 DISPLAYED_ROAD_SECTIONS = 10
-
 UNSTEPABLEE_COLUMNS = 2 #unusable cullums at each side of the road
+MAX_BLOCKS_BACK = 3
+BACK_BORDER_MOVEMENT_SPEED = 0.02#Blocks per Tick
+PLAYER_SPEED = 10 #Ticks needed to move 1 Block
 
+
+#Surfaces
+TREE_IMAGE = pygame.Surface((BLOCK_SIZE,BLOCK_SIZE))
+PLAYER_IMAGE = pygame.Surface((BLOCK_SIZE, BLOCK_SIZE))
 WINDOW_WIDTH = BLOCK_SIZE * (ROAD_COLUMNS + UNSTEPABLEE_COLUMNS*2)
 WINDOW_HEIGHT = BLOCK_SIZE * DISPLAYED_ROAD_SECTIONS 
 
 
-#Player settings
-PLAYER_IMAGE = pygame.Surface((BLOCK_SIZE, BLOCK_SIZE))
-MAX_BLOCKS_BACK = 3
-BACK_BORDER_MOVEMENT_SPEED = 0.02#Blocks per Tick
-PLAYER_SPEED = 10 #Ticks needed to move 1 Block
 
 
 
