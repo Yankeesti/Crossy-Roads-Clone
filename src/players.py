@@ -58,48 +58,56 @@ class Player(pygame.sprite.Sprite):
         else:
             action = self.controller.get_action()
             if action == "left":
-                if self.check_move_possible((-config.BLOCK_SIZE,0)):
-                    for i in range(1,config.PLAYER_SPEED):
-                        self.moves.put(self.move_left)
-                    self.move_left()
-
+                self.init_move_left()
             elif action == "right":
-                if self.check_move_possible((config.BLOCK_SIZE,0)):
-                    for i in range(1,config.PLAYER_SPEED):
-                        self.moves.put(self.move_right)
-                    self.move_right()
+                self.init_move_right()
             elif action == "up":
-                if self.check_move_possible((0,-config.BLOCK_SIZE)):
-                    for i in range(1,config.PLAYER_SPEED):
-                        self.moves.put(self.move_up)
-                    self.move_up()
-                    self.moves.put(lambda: (
-                            setattr(self, "sections", [self.sections[0].next_section]),
-                            setattr(self, "score", self.score + 1),
-                            setattr(self,"killing_y_point",self.sections[0].rect[1] +config.MAX_BLOCKS_BACK*config.BLOCK_SIZE)
-                    ))
-
+                self.init_move_up()
             elif action == "down":
-                if self.check_move_possible((0,config.BLOCK_SIZE)):
-                    self.sections = [self.sections[0].previous_section]
-                    for i in range(1,config.PLAYER_SPEED):
-                        self.moves.put(self.move_down)
-                    self.move_down()
+                self.init_move_down()
         if self.rect[1] >= self.killing_y_point:
             self.manager.player_dead(self)
 
     def __repr__(self) -> str:
         return f"Player at {self.rect[0]},{self.rect[1]}, score: {self.score}"
 
-    def setManager(self,manager):
-        self.manager = manager
+    def init_move_left(self):
+        if self.check_move_possible((-config.BLOCK_SIZE,0)):
+            for i in range(1,config.PLAYER_SPEED):
+                self.moves.put(self.move_left)
+            self.move_left()
     def move_left(self):
         self.rect[0]-= config.BLOCK_SIZE//config.PLAYER_SPEED
+
+    def init_move_right(self):
+        if self.check_move_possible((config.BLOCK_SIZE,0)):
+            for i in range(1,config.PLAYER_SPEED):
+                self.moves.put(self.move_right)
+            self.move_right()
     def move_right(self):
         self.rect[0] += config.BLOCK_SIZE//config.PLAYER_SPEED
+
+    def init_move_up(self):
+        if self.check_move_possible((0,-config.BLOCK_SIZE)):
+            for i in range(1,config.PLAYER_SPEED):
+                self.moves.put(self.move_up)
+            self.move_up()
+            self.moves.put(lambda: (
+                    setattr(self, "sections", [self.sections[0].next_section]),
+                    setattr(self, "score", self.score + 1),
+                    setattr(self,"killing_y_point",self.sections[0].rect.bottomleft[1] +config.MAX_BLOCKS_BACK*config.BLOCK_SIZE)
+            ))
     def move_up(self):
         self.rect[1] -= config.BLOCK_SIZE//config.PLAYER_SPEED
-        
+    
+    def init_move_down(self):
+        print("self.killing_y_point",self.killing_y_point)
+        if(self.rect[1] <-config.BLOCK_SIZE):
+            if self.check_move_possible((0,config.BLOCK_SIZE)):
+                self.sections = [self.sections[0].previous_section]
+                for i in range(1,config.PLAYER_SPEED):
+                    self.moves.put(self.move_down)
+                self.move_down()
     def move_down(self):
         self.rect[1] += config.BLOCK_SIZE//config.PLAYER_SPEED
 

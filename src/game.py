@@ -43,11 +43,10 @@ class Game:
     def main(self):
         clock = pygame.time.Clock()
         self.camera.draw(self.playerManager.min_player)
-        run = True
-        while run:
+        while True:
             clock.tick(60)
-            run = key_handler.handle_key_press()["run"]
-            run = self.playerManager.update()
+            if( key_handler.handle_key_press()["run"] == False or self.playerManager.update() == False):
+                break
             self.road_section_manager.update()
             self.camera.draw(self.playerManager.min_player)
         print(self.playerManager.dead_players)
