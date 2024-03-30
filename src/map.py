@@ -38,7 +38,7 @@ class RoadSection(pygame.sprite.Sprite):
         self.sections_to_draw = None
         self.road_section_manager = RoadSectionManager()
         self.blocked_columns = pygame.sprite.Group()
-        self.set_blocked_columns()
+        # self.set_blocked_columns() 
         
     def set_blocked_columns(self):
         transparent_surface = pygame.Surface((config.BLOCK_SIZE*config.UNSTEPABLEE_COLUMNS,config.BLOCK_SIZE),pygame.SRCALPHA)

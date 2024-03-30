@@ -72,7 +72,7 @@ class Player(pygame.sprite.Sprite):
         return f"Player at {self.rect[0]},{self.rect[1]}, score: {self.score}"
 
     def init_move_left(self):
-        if self.check_move_possible((-config.BLOCK_SIZE,0)):
+        if self.rect.bottomleft[0]-config.BLOCK_SIZE >=config.BLOCK_SIZE*config.UNSTEPABLEE_COLUMNS and self.check_move_possible((-config.BLOCK_SIZE,0)): #Check for Obstacles and left Border
             for i in range(1,config.PLAYER_SPEED):
                 self.moves.put(self.move_left)
             self.move_left()
@@ -80,7 +80,7 @@ class Player(pygame.sprite.Sprite):
         self.rect[0]-= config.BLOCK_SIZE//config.PLAYER_SPEED
 
     def init_move_right(self):
-        if self.check_move_possible((config.BLOCK_SIZE,0)):
+        if self.rect.bottomright[0] + config.BLOCK_SIZE <= config.WINDOW_WIDTH - config.BLOCK_SIZE*config.UNSTEPABLEE_COLUMNS and self.check_move_possible((config.BLOCK_SIZE,0)):
             for i in range(1,config.PLAYER_SPEED):
                 self.moves.put(self.move_right)
             self.move_right()
