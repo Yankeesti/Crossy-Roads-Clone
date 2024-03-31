@@ -88,6 +88,7 @@ class Player(pygame.sprite.Sprite):
         self.rect[0] += config.BLOCK_SIZE//config.PLAYER_SPEED
 
     def init_move_up(self):
+        self.sections.append(self.sections[-1].next_section)
         if self.check_move_possible((0,-config.BLOCK_SIZE)):
             for i in range(1,config.PLAYER_SPEED):
                 self.moves.put(self.move_up)
@@ -95,19 +96,25 @@ class Player(pygame.sprite.Sprite):
             self.moves.put(lambda: (
                     setattr(self, "sections", [self.sections[0].next_section]),
                     setattr(self, "score", self.score + 1),
-                    setattr(self,"killing_y_point",self.sections[0].rect.bottomleft[1] +config.MAX_BLOCKS_BACK*config.BLOCK_SIZE)
+                    setattr(self,"killing_y_point",self.sections[0].rect.bottomleft[1] +config.MAX_BLOCKS_BACK*config.BLOCK_SIZE),
+                    print("killing y point",self.killing_y_point,"section y position",self.sections[0].rect.bottomleft[1])
+
             ))
+        self.sections.remove(self.sections[1])
     def move_up(self):
         self.rect[1] -= config.BLOCK_SIZE//config.PLAYER_SPEED
     
     def init_move_down(self):
-        print("self.killing_y_point",self.killing_y_point)
+        self.sections.append(self.sections[0].previous_section)
         if(self.rect[1] <-config.BLOCK_SIZE):
             if self.check_move_possible((0,config.BLOCK_SIZE)):
                 self.sections = [self.sections[0].previous_section]
                 for i in range(1,config.PLAYER_SPEED):
                     self.moves.put(self.move_down)
                 self.move_down()
+                self.moves.put(lambda: (
+                    setattr(self, "sections", [self.sections[1]]),
+                ))
     def move_down(self):
         self.rect[1] += config.BLOCK_SIZE//config.PLAYER_SPEED
 
@@ -116,7 +123,7 @@ class Player(pygame.sprite.Sprite):
     def check_move_possible(self,move):
         self.rect.move_ip(move)
         for section in self.sections:
-            if pygame.sprite.spritecollide(self,section.blocked_columns,False):
+            if pygame.sprite.spritecollide(self,section.static_obstacles,False):
                 self.rect.move_ip((-move[0],-move[1]))
                 return False
         self.rect.move_ip((-move[0],-move[1]))

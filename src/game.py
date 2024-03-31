@@ -24,7 +24,6 @@ class Camera():
         y_offset = player.rect[1] - (config.DISPLAYED_ROAD_SECTIONS-3)*config.BLOCK_SIZE
         for section in player.sections[0].get_sections_to_draw():
             section.draw(self.display_surface,y_offset)
-            # self.display_surface.blit(section.image,(0,section.rect[1] - y_offset))
         for player in self.player_manager.players:
             self.display_surface.blit(player.image,(player.rect[0],player.rect[1] - y_offset))
         #drawn grey transparent rectangle to highlight unplayable area
