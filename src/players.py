@@ -37,7 +37,7 @@ class PlayerManager(object):
             return False
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self,currentSection,controller,manager :PlayerManager):
+    def __init__(self,currentSection : map.RoadSection,controller,manager :PlayerManager):
         super().__init__()
         self.image = config.PLAYER_IMAGE
         self.image.fill((255, 0, 0))
@@ -49,7 +49,7 @@ class Player(pygame.sprite.Sprite):
         self.moves = queue.Queue()
         self.manager = manager
         self.killing_y_point = config.MAX_BLOCKS_BACK*config.BLOCK_SIZE
-        self.score = 0
+        self.highest_section = currentSection
 
     def update(self):
         self.killing_y_point -= config.BLOCK_SIZE*config.BACK_BORDER_MOVEMENT_SPEED
@@ -69,10 +69,11 @@ class Player(pygame.sprite.Sprite):
             self.manager.player_dead(self)
 
     def __repr__(self) -> str:
-        return f"Player at {self.rect[0]},{self.rect[1]}, score: {self.score}"
+        return f"Player at {self.rect[0]},{self.rect[1]}, score: {self.score}, current section: {self.sections[0]}"
 
     def init_move_left(self):
-        if self.rect.bottomleft[0]-config.BLOCK_SIZE >=config.BLOCK_SIZE*config.UNSTEPABLEE_COLUMNS and self.check_move_possible((-config.BLOCK_SIZE,0)): #Check for Obstacles and left Border
+        if (self.rect.bottomleft[0]-config.BLOCK_SIZE >=config.BLOCK_SIZE*config.UNSTEPABLEE_COLUMNS 
+            and self.check_move_possible(self.sections,(-config.BLOCK_SIZE,0))): #Check for Obstacles and left Border
             for i in range(1,config.PLAYER_SPEED):
                 self.moves.put(self.move_left)
             self.move_left()
@@ -80,53 +81,58 @@ class Player(pygame.sprite.Sprite):
         self.rect[0]-= config.BLOCK_SIZE//config.PLAYER_SPEED
 
     def init_move_right(self):
-        if self.rect.bottomright[0] + config.BLOCK_SIZE <= config.WINDOW_WIDTH - config.BLOCK_SIZE*config.UNSTEPABLEE_COLUMNS and self.check_move_possible((config.BLOCK_SIZE,0)):
+        if (self.rect.bottomright[0] + config.BLOCK_SIZE <= config.WINDOW_WIDTH - config.BLOCK_SIZE*config.UNSTEPABLEE_COLUMNS 
+            and self.check_move_possible(self.sections,(config.BLOCK_SIZE,0))):
             for i in range(1,config.PLAYER_SPEED):
                 self.moves.put(self.move_right)
             self.move_right()
     def move_right(self):
+        # print("right")
         self.rect[0] += config.BLOCK_SIZE//config.PLAYER_SPEED
 
     def init_move_up(self):
-        self.sections.append(self.sections[-1].next_section)
-        if self.check_move_possible((0,-config.BLOCK_SIZE)):
-            for i in range(1,config.PLAYER_SPEED):
+        if self.check_move_possible([self.sections[0].next_section],(0,-config.BLOCK_SIZE)):
+            self.sections.insert(1,self.sections[0].next_section)
+            self.sections[1].add_player(self)
+            for _ in range(1,config.PLAYER_SPEED):
                 self.moves.put(self.move_up)
             self.move_up()
             self.moves.put(lambda: (
-                    setattr(self, "sections", [self.sections[0].next_section]),
-                    setattr(self, "score", self.score + 1),
+                    self.update_highest_section(),
+                    print("new score",self.highest_section.index),
+                    self.sections[0].remove_player(self),
+                    setattr(self, "sections", [self.sections[1]]),
                     setattr(self,"killing_y_point",self.sections[0].rect.bottomleft[1] +config.MAX_BLOCKS_BACK*config.BLOCK_SIZE),
-                    print("killing y point",self.killing_y_point,"section y position",self.sections[0].rect.bottomleft[1])
-
             ))
-        self.sections.remove(self.sections[1])
     def move_up(self):
+        # print("up")
         self.rect[1] -= config.BLOCK_SIZE//config.PLAYER_SPEED
     
     def init_move_down(self):
-        self.sections.append(self.sections[0].previous_section)
-        if(self.rect[1] <-config.BLOCK_SIZE):
-            if self.check_move_possible((0,config.BLOCK_SIZE)):
-                self.sections = [self.sections[0].previous_section]
-                for i in range(1,config.PLAYER_SPEED):
+        if(self.rect[1] <-config.BLOCK_SIZE 
+           and self.check_move_possible([self.sections[0].previous_section],(0,config.BLOCK_SIZE))):
+                self.sections.insert(0,self.sections[0].previous_section)
+                self.sections[0].add_player(self)
+                for _ in range(1,config.PLAYER_SPEED):
                     self.moves.put(self.move_down)
                 self.move_down()
                 self.moves.put(lambda: (
-                    setattr(self, "sections", [self.sections[1]]),
+                    self.sections[1].remove_player(self),
+                    setattr(self, "sections", [self.sections[0]]),
                 ))
     def move_down(self):
         self.rect[1] += config.BLOCK_SIZE//config.PLAYER_SPEED
 
-
-
-    def check_move_possible(self,move):
+    def check_move_possible(self,sections,move):
         self.rect.move_ip(move)
-        for section in self.sections:
+        for section in sections:
             if pygame.sprite.spritecollide(self,section.static_obstacles,False):
                 self.rect.move_ip((-move[0],-move[1]))
                 return False
         self.rect.move_ip((-move[0],-move[1]))
         return True
 
-
+    def update_highest_section(self):
+        highest_current_section = max(self.sections,key=lambda x: x.index)
+        if highest_current_section.index > self.highest_section.index:
+            self.highest_section = highest_current_section

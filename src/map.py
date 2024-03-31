@@ -73,13 +73,13 @@ class RoadSection(pygame.sprite.Sprite):
         surface.blit(self.image,(0,self.rect[1] - y_offset))
         for static_obstacle in self.static_obstacles:
             surface.blit(static_obstacle.image,(static_obstacle.rect[0],static_obstacle.rect[1] - y_offset))
-
+    def __repr__(self) -> str:
+        return f"RoadSection {self.index}, players on section: {len(self.players_on_section)}"
 class StaticRoadSection(RoadSection):
     def __init__(self,index,previeous_section = None,next_section = None,static_obstacle_pos = None):
         image = pygame.Surface((config.WINDOW_WIDTH, config.BLOCK_SIZE),pygame.SRCALPHA)
         if static_obstacle_pos is None:
             static_obstacle_pos = random.sample(range(0,config.ROAD_COLUMNS+2*config.UNSTEPABLEE_COLUMNS),random.randint(1,config.ROAD_COLUMNS//4))
-        print(static_obstacle_pos)
         if(index % 2 == 0):
             image.fill((37, 255, 0,255))
         else:
@@ -93,6 +93,3 @@ class StaticRoadSection(RoadSection):
     def update(self):
         pass
 
-class DynamicSection(RoadSection):
-    def __init__(self, index, surface, previeous_section, next_section, static_obstacles_pos):
-        super().__init__(index, surface, previeous_section, next_section, static_obstacles_pos)

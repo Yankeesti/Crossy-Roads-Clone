@@ -18,19 +18,22 @@ class Camera():
         super().__init__()
         self.road_section_manager = map.RoadSectionManager()
         self.player_manager = players.PlayerManager([])
-        self.display_surface = pygame.display.get_surface()
+        self.display_surface = pygame.diswswplay.get_surface()
+        self.last_player_position = (1,1)
         
-    def draw(self,player:players.Player):
+    def draw(self,player:players.Player):#draws the road sections and players
         y_offset = player.rect[1] - (config.DISPLAYED_ROAD_SECTIONS-3)*config.BLOCK_SIZE
         for section in player.sections[0].get_sections_to_draw():
             section.draw(self.display_surface,y_offset)
         for player in self.player_manager.players:
             self.display_surface.blit(player.image,(player.rect[0],player.rect[1] - y_offset))
-        #drawn grey transparent rectangle to highlight unplayable area
+        #drawn grey transparent rectangle to highlightws unplayable area
         self.display_surface.blit(BORDER_SURFACE,(0,0))
         self.display_surface.blit(BORDER_SURFACE,(config.WINDOW_WIDTH - config.BLOCK_SIZE*config.UNSTEPABLEE_COLUMNS,0))
         pygame.display.update()
-        
+    
+    def draw_partially(self,player:players.Player):
+        pass
 
 class Game:
     def __init__(self,controllers=[key_handler.HumanController()]):

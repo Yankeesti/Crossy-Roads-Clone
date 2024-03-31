@@ -3,7 +3,7 @@ BLOCK_SIZE = 100
 ROAD_COLUMNS = 9
 DISPLAYED_ROAD_SECTIONS = 10
 UNSTEPABLEE_COLUMNS = 2 #unusable cullums at each side of the road
-MAX_BLOCKS_BACK = 3
+MAX_BLOCKS_BACK = 6
 BACK_BORDER_MOVEMENT_SPEED = 0#Blocks per Tick
 PLAYER_SPEED = 10 #Ticks needed to move 1 Block
 

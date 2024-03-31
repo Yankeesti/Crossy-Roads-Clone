@@ -16,5 +16,13 @@ class StaticObstacle(Obstacle):
         image = pygame.Surface((config.BLOCK_SIZE, config.BLOCK_SIZE))
         image.fill((0,0,0))
 
-        super().__init__(image,x_pos,road_section) 
+        super().__init__(image,x_pos,road_section)
+
+class DynamicObstacle(Obstacle):
+    def __init__(self,x_pos, road_section,image = config.TREE_IMAGE):
+        image = pygame.Surface((config.BLOCK_SIZE, config.BLOCK_SIZE))
+        image.fill((100,0,0))
+        super().__init__(image,x_pos,road_section)
+
+    
     
