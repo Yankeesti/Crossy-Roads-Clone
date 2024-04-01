@@ -28,7 +28,7 @@ class RoadSectionManager(object):
 
 #Roadsections should only be created by RoadSectionManager
 class RoadSection(pygame.sprite.Sprite):
-    def __init__(self,index,surface,previeous_section,next_section,static_obstacles_pos):
+    def __init__(self,index,surface,previeous_section,next_section):
         super().__init__()
         self.image = surface
         self.rect = self.image.get_rect()
@@ -39,12 +39,6 @@ class RoadSection(pygame.sprite.Sprite):
         self.players_on_section = []
         self.sections_to_draw = None
         self.road_section_manager = RoadSectionManager()
-        self.static_obstacles = pygame.sprite.Group()
-        self.init_static_obstacles(static_obstacles_pos)
-
-    def init_static_obstacles(self,static_obstacle_pos:list): 
-       for pos in static_obstacle_pos:
-              self.static_obstacles.add(obstacles.StaticObstacle(pos*config.BLOCK_SIZE,self))
     
     def get_sections_to_draw(self):
         if self.sections_to_draw is not None:
@@ -73,6 +67,9 @@ class RoadSection(pygame.sprite.Sprite):
         surface.blit(self.image,(0,self.rect[1] - y_offset))
         for static_obstacle in self.static_obstacles:
             surface.blit(static_obstacle.image,(static_obstacle.rect[0],static_obstacle.rect[1] - y_offset))
+
+    def move_possible(self,player,move):
+        return True
     def __repr__(self) -> str:
         return f"RoadSection {self.index}, players on section: {len(self.players_on_section)}"
 class StaticRoadSection(RoadSection):
@@ -87,8 +84,35 @@ class StaticRoadSection(RoadSection):
         super().__init__(index=index
                          ,surface=image
                          ,previeous_section = previeous_section
+                         ,next_section = next_section)
+        self.static_obstacles = pygame.sprite.Group()
+        self.init_static_obstacles(static_obstacle_pos)
+
+    def init_static_obstacles(self,static_obstacle_pos:list): 
+       for pos in static_obstacle_pos:
+              self.static_obstacles.add(obstacles.StaticObstacle(pos*config.BLOCK_SIZE,self))
+        
+    def move_possible(self,player : pygame.sprite.Sprite,move):
+        player.rect.move_ip(move)
+        out_put = pygame.sprite.spritecollide(player,self.static_obstacles,False)
+        player.rect.move_ip((-move[0],-move[1]))
+        return out_put == []
+
+    def update(self):
+        pass
+class DynamicRoadSection(RoadSection):
+    def __init__(self,index,previeous_section = None,next_section = None):
+        image = pygame.Surface((config.WINDOW_WIDTH, config.BLOCK_SIZE))
+
+        if(index % 2 == 0):
+            image.fill((80, 80, 80,255))
+        else:
+            image.fill((144, 144, 144,255))
+        super().__init__(index=index
+                         ,surface=image
+                         ,previeous_section = previeous_section
                          ,next_section = next_section
-                         ,static_obstacles_pos = static_obstacle_pos)
+                         ,static_obstacles_pos = [])
 
     def update(self):
         pass

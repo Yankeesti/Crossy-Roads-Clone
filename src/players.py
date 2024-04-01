@@ -69,7 +69,7 @@ class Player(pygame.sprite.Sprite):
             self.manager.player_dead(self)
 
     def __repr__(self) -> str:
-        return f"Player at {self.rect[0]},{self.rect[1]}, score: {self.score}, current section: {self.sections[0]}"
+        return f"Player at {self.rect[0]},{self.rect[1]}, score: {self.highest_section.index}, current section: {self.sections[0]}"
 
     def init_move_left(self):
         if (self.rect.bottomleft[0]-config.BLOCK_SIZE >=config.BLOCK_SIZE*config.UNSTEPABLEE_COLUMNS 
@@ -124,12 +124,9 @@ class Player(pygame.sprite.Sprite):
         self.rect[1] += config.BLOCK_SIZE//config.PLAYER_SPEED
 
     def check_move_possible(self,sections,move):
-        self.rect.move_ip(move)
         for section in sections:
-            if pygame.sprite.spritecollide(self,section.static_obstacles,False):
-                self.rect.move_ip((-move[0],-move[1]))
+            if section.move_possible(self,move) == False:
                 return False
-        self.rect.move_ip((-move[0],-move[1]))
         return True
 
     def update_highest_section(self):

@@ -18,7 +18,7 @@ class Camera():
         super().__init__()
         self.road_section_manager = map.RoadSectionManager()
         self.player_manager = players.PlayerManager([])
-        self.display_surface = pygame.diswswplay.get_surface()
+        self.display_surface = pygame.display.get_surface()
         self.last_player_position = (1,1)
         
     def draw(self,player:players.Player):#draws the road sections and players
