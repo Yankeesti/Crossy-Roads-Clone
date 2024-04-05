@@ -20,11 +20,12 @@ class RoadSectionManager(object):
     
     def generate_sections(self,min_generated_sections = 1):
         for i in range(len(self.road_sections),len(self.road_sections)+min_generated_sections):
-            self.road_sections.append(StaticRoadSection(i,self.road_sections[i-1]))
+            self.road_sections.append(DynamicRoadSection(i,self.road_sections[i-1]))
             self.road_sections[i-1].next_section = self.road_sections[i] 
 
     def update(self):
-        pass
+        for road_section in self.road_sections:
+            road_section.update()
 
 #Roadsections should only be created by RoadSectionManager
 class RoadSection(pygame.sprite.Sprite):
@@ -36,7 +37,7 @@ class RoadSection(pygame.sprite.Sprite):
         self.rect.bottomleft = (0,-(index*config.BLOCK_SIZE))
         self.next_section = next_section
         self.previous_section = previeous_section
-        self.players_on_section = []
+        self.players_on_section = pygame.sprite.Group()
         self.sections_to_draw = None
         self.road_section_manager = RoadSectionManager()
     
@@ -53,20 +54,17 @@ class RoadSection(pygame.sprite.Sprite):
         return self.sections_to_draw
 
     def add_player(self,player):
-        self.players_on_section.append(player)
+        self.players_on_section.add(player)
         
     def remove_player(self,player):
         self.players_on_section.remove(player)
 
     def update(self):
-        # Add any update logic for the road section here
+        #self.
         pass
 
     def draw(self,surface,y_offset):
-        # print("index",self.index,"y offset", y_offset,"self rect :",self.rect)
         surface.blit(self.image,(0,self.rect[1] - y_offset))
-        for static_obstacle in self.static_obstacles:
-            surface.blit(static_obstacle.image,(static_obstacle.rect[0],static_obstacle.rect[1] - y_offset))
 
     def move_possible(self,player,move):
         return True
@@ -100,10 +98,14 @@ class StaticRoadSection(RoadSection):
 
     def update(self):
         pass
-class DynamicRoadSection(RoadSection):
-    def __init__(self,index,previeous_section = None,next_section = None):
-        image = pygame.Surface((config.WINDOW_WIDTH, config.BLOCK_SIZE))
+    def draw(self,surface,y_offset):
+        super().draw(surface,y_offset)
+        for static_obstacle in self.static_obstacles:
+            surface.blit(static_obstacle.image,(static_obstacle.rect[0],static_obstacle.rect[1] - y_offset))
 
+class DynamicRoadSection(RoadSection):
+    def __init__(self,index,previeous_section = None,next_section = None,car_number = 3,car_speed = 0.5):
+        image = pygame.Surface((config.WINDOW_WIDTH, config.BLOCK_SIZE))
         if(index % 2 == 0):
             image.fill((80, 80, 80,255))
         else:
@@ -111,9 +113,20 @@ class DynamicRoadSection(RoadSection):
         super().__init__(index=index
                          ,surface=image
                          ,previeous_section = previeous_section
-                         ,next_section = next_section
-                         ,static_obstacles_pos = [])
+                         ,next_section = next_section)
+        self.cars = pygame.sprite.Group()
+        self.init_cars(car_number,car_speed)    
+
+    def init_cars(self,car_number,car_speed):
+        for i in range(0,car_number):
+            self.cars.add(obstacles.DynamicObstacle(car_speed,self))
+    
+    def draw(self,surface,y_offset):
+        super().draw(surface,y_offset)
+        for car in self.cars:
+            surface.blit(car.image,(car.rect[0],car.rect[1] - y_offset))
 
     def update(self):
-        pass
+        for car in self.cars:
+            car.update()
 
