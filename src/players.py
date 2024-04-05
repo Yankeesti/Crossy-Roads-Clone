@@ -27,9 +27,9 @@ class PlayerManager(object):
         self.dead_players.append(player)
     
     def update(self):
-        for player in self.players:
-            player.update()
         if(len(self.players) > 0):
+            for player in self.players:
+                player.update()
             self.min_player = max(self.players,key=lambda x: x.rect[1])
             self.max_player = min(self.players,key=lambda x: x.rect[1])
             return True
@@ -99,7 +99,6 @@ class Player(pygame.sprite.Sprite):
             self.move_up()
             self.moves.put(lambda: (
                     self.update_highest_section(),
-                    print("new score",self.highest_section.index),
                     self.sections[0].remove_player(self),
                     setattr(self, "sections", [self.sections[1]]),
                     setattr(self,"killing_y_point",self.sections[0].rect.bottomleft[1] +config.MAX_BLOCKS_BACK*config.BLOCK_SIZE),

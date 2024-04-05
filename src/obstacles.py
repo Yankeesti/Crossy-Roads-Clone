@@ -28,7 +28,6 @@ class DynamicObstacle(Obstacle):
 
     def update(self):
         self.rect.move_ip(self.speed*config.BLOCK_SIZE,0)
-        print(self.rect[0])
         if self.rect[0] > config.WINDOW_WIDTH:
             self.rect[0] = -100
     
