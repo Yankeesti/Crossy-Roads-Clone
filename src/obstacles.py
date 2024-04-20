@@ -20,16 +20,17 @@ class StaticObstacle(Obstacle):
         super().__init__(image,x_pos,road_section)
 
 class DynamicObstacle(Obstacle):
-    def __init__(self,speed, road_section,image = config.CAR_IMAGE):
+    def __init__(self,speed, road_section,image = config.CAR_IMAGE,x_pos = 0):
         image = pygame.Surface((config.BLOCK_SIZE, config.BLOCK_SIZE*1.8))
         image.fill((100,0,0))
-        super().__init__(image,100,road_section)
+        super().__init__(image,x_pos,road_section)
         self.speed = speed
+        self.starting_x_pos = x_pos
 
     def update(self):
         self.rect.move_ip(self.speed*config.BLOCK_SIZE,0)
         if self.rect[0] > config.WINDOW_WIDTH:
-            self.rect[0] = -100
+            self.rect[0] = self.starting_x_pos
     
 
     

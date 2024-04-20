@@ -20,7 +20,7 @@ class RoadSectionManager(object):
     
     def generate_sections(self,min_generated_sections = 1):
         for i in range(len(self.road_sections),len(self.road_sections)+min_generated_sections):
-            self.road_sections.append(DynamicRoadSection(i,self.road_sections[i-1]))
+            self.road_sections.append(DynamicRoadSection(i,previeous_section=self.road_sections[i-1],car_number=random.randint(1,5),car_speed=random.uniform(0.01,0.1),car_distance=random.uniform(1.3,4)*config.BLOCK_SIZE))
             self.road_sections[i-1].next_section = self.road_sections[i] 
 
     def update(self):
@@ -104,7 +104,7 @@ class StaticRoadSection(RoadSection):
             surface.blit(static_obstacle.image,(static_obstacle.rect[0],static_obstacle.rect[1] - y_offset))
 
 class DynamicRoadSection(RoadSection):
-    def __init__(self,index,previeous_section = None,next_section = None,car_number = 3,car_speed = 0.5):
+    def __init__(self,index,previeous_section = None,next_section = None,car_number = 3,car_speed = 0.01,car_starting_point = 0,car_distance = 1.3*config.BLOCK_SIZE):
         image = pygame.Surface((config.WINDOW_WIDTH, config.BLOCK_SIZE))
         if(index % 2 == 0):
             image.fill((80, 80, 80,255))
@@ -115,11 +115,13 @@ class DynamicRoadSection(RoadSection):
                          ,previeous_section = previeous_section
                          ,next_section = next_section)
         self.cars = pygame.sprite.Group()
-        self.init_cars(car_number,car_speed)    
+        self.init_cars(car_starting_point=car_starting_point,car_distance=car_distance,car_number=car_number,car_speed=car_speed)    
 
-    def init_cars(self,car_number,car_speed):
+    def init_cars(self,car_starting_point,car_distance,car_number,car_speed):
+        x_pos = car_starting_point
         for i in range(0,car_number):
-            self.cars.add(obstacles.DynamicObstacle(car_speed,self))
+            self.cars.add(obstacles.DynamicObstacle(car_speed,self,x_pos = x_pos))
+            x_pos -= car_distance
     
     def draw(self,surface,y_offset):
         super().draw(surface,y_offset)
