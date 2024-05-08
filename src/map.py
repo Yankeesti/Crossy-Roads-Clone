@@ -3,6 +3,7 @@ import pygame
 import config
 import obstacles
 import random
+from enums import Direction
 
 
 class RoadSectionManager(object):
@@ -24,7 +25,7 @@ class RoadSectionManager(object):
     def generate_sections(self, min_generated_sections=1):
         for i in range(len(self.road_sections), len(self.road_sections)+min_generated_sections):
             self.road_sections.append(DynamicRoadSection(i, previeous_section=self.road_sections[i-1], car_number=random.randint(
-                1, 5), car_speed=random.uniform(0.01, 0.1), car_distance=random.uniform(1.3, 4)*config.BLOCK_SIZE))
+                1, 5), car_speed=random.uniform(0.01, 0.1), car_direction=random.choice(list(Direction)), car_offset_from_screen_edge=random.randint(1, 500), car_distance=random.uniform(1.3, 4)*config.BLOCK_SIZE))
             self.road_sections[i-1].next_section = self.road_sections[i]
 
     def update(self):
@@ -120,7 +121,23 @@ class StaticRoadSection(RoadSection):
 
 
 class DynamicRoadSection(RoadSection):
-    def __init__(self, index: int, previeous_section: RoadSection, next_section: RoadSection, car_number: int, car_speed: int, car_starting_point: int, car_distance: int):
+    def __init__(self, index: int, previeous_section: RoadSection, car_number: int, car_speed: int, car_direction: Direction, car_offset_from_screen_edge: int, car_distance: int, next_section: RoadSection = None):
+        """
+        Initializes a DynamicRoadSection object.
+
+        Args:
+            index (int): The index of the road section.
+            previeous_section (RoadSection): The previous road section.
+            next_section (RoadSection): The next road section.
+            car_number (int): The number of cars on the map.
+            car_speed (int): The speed of the cars.
+            car_direction (Direction): The direction of the cars.
+            car_offset_from_screen_edge (int): The starting point of the cars.
+            car_distance (int): The distance the cars will travel.
+
+        Returns:
+            None
+        """
         image = pygame.Surface((config.WINDOW_WIDTH, config.BLOCK_SIZE))
         if (index % 2 == 0):
             image.fill((80, 80, 80, 255))
@@ -129,15 +146,26 @@ class DynamicRoadSection(RoadSection):
         super().__init__(index=index, surface=image,
                          previeous_section=previeous_section, next_section=next_section)
         self.cars = pygame.sprite.Group()
-        self.init_cars(car_starting_point=car_starting_point,
-                       car_distance=car_distance, car_number=car_number, car_speed=car_speed)
+        if (car_direction == Direction.RIGHT):
+            self.init_cars_move_right(car_offset_from_screen_edge=car_offset_from_screen_edge,
+                                      car_distance=car_distance, car_number=car_number, car_speed=car_speed)
+        else:
+            self.init_cars_move_left(car_offset_from_screen_edge=car_offset_from_screen_edge,
+                                     car_distance=car_distance, car_number=car_number, car_speed=car_speed)
 
-    def init_cars(self, car_starting_point, car_distance, car_number, car_speed):
-        x_pos = car_starting_point
+    def init_cars_move_right(self, car_offset_from_screen_edge: int, car_distance: int, car_number: int, car_speed: int):
+        x_pos = -car_offset_from_screen_edge
         for i in range(0, car_number):
-            self.cars.add(obstacles.DynamicObstacle(
+            self.cars.add(obstacles.DynamicObstacleMovingRight(
                 car_speed, self, x_pos=x_pos))
             x_pos -= car_distance
+
+    def init_cars_move_left(self, car_offset_from_screen_edge: int, car_distance: int, car_number: int, car_speed: int):
+        x_pos = config.WINDOW_WIDTH + car_offset_from_screen_edge
+        for i in range(0, car_number):
+            self.cars.add(obstacles.DynamicObstacleMovingLeft(
+                -car_speed, self, x_pos=x_pos))
+            x_pos += car_distance
 
     def draw(self, surface, y_offset):
         super().draw(surface, y_offset)
