@@ -1,6 +1,8 @@
 import pygame
 
 navigation_action = "stay"
+
+
 def handle_key_press():
     global navigation_action
     out_put = {"run": True}
@@ -17,6 +19,7 @@ def handle_key_press():
             if event.key == pygame.K_s:
                 navigation_action = "down"
     return out_put
+
 
 class HumanController:
     def get_action(self):
