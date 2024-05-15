@@ -39,7 +39,7 @@ class DynamicObstacleMovingRight(DynamicObstacle):
     def update(self):
         self.rect.move_ip(self.speed*config.BLOCK_SIZE, 0)
         if self.rect[0] > config.WINDOW_WIDTH:
-            self.rect[0] = self.starting_x_pos
+            self.rect[0] = 0
 
 
 class DynamicObstacleMovingLeft(DynamicObstacle):
@@ -50,4 +50,4 @@ class DynamicObstacleMovingLeft(DynamicObstacle):
     def update(self):
         self.rect.move_ip(self.speed*config.BLOCK_SIZE, 0)
         if self.rect.right < 0:
-            self.rect.right = self.starting_x_pos
+            self.rect.left = config.WINDOW_WIDTH

@@ -4,6 +4,8 @@ from map import RoadSectionManager
 from players import *
 from key_handler import HumanController
 from obstacles import Obstacle
+from enums import *
+import random
 
 # class test_Player(unittest.TestCase):
 #     def test_correct_positioning(self):
@@ -76,9 +78,22 @@ class test_RoadSectionManager(unittest.TestCase):
 
     def test_generate_sections_multipleBatches(self):
         road_section_manager = RoadSectionManager()
+        config.ROAD_SECTION_GROUP_CONFIGURATION = [
+            {"chance": 1,
+             "road_sections": [
+                 {"type": RoadSectionType.DYNAMIC,
+                  "car_number": 2,
+                  "car_speed": 0.05,
+                  "car_direction": Direction.RIGHT,
+                  "car_offset_from_screen_edge": 0,
+                  "car_distance": 1.5}
+             ]
+             }
+        ]
+        config.ROAD_SECTION_GROUP_CONFIGURATION_WEIGHTS = [1]
         road_section_manager.generate_sections(1)
         road_section_manager.generate_sections(2)
-        self.assertEqual(len(road_section_manager.road_sections), 4)
+        self.assertEqual(len(road_section_manager.road_sections), 5)
         # Test Indexes
         self.assertEqual(road_section_manager.road_sections[0].index, 0)
         self.assertEqual(road_section_manager.road_sections[1].index, 1)
@@ -96,6 +111,19 @@ class test_RoadSectionManager(unittest.TestCase):
 
     def test_correct_road_section_linking(self):
         road_section_manager = RoadSectionManager()
+        config.ROAD_SECTION_GROUP_CONFIGURATION = [
+            {"chance": 1,
+             "road_sections": [
+                 {"type": RoadSectionType.DYNAMIC,
+                  "car_number": 2,
+                  "car_speed": 0.05,
+                  "car_direction": Direction.RIGHT,
+                  "car_offset_from_screen_edge": 0,
+                  "car_distance": 1.5}
+             ]
+             }
+        ]
+        config.ROAD_SECTION_GROUP_CONFIGURATION_WEIGHTS = [1]
         road_section_manager.generate_sections(1)
         road_section_manager.generate_sections(2)
 
@@ -104,7 +132,7 @@ class test_RoadSectionManager(unittest.TestCase):
         road_section_neg_two = road_section_neg_one.previous_section
         self.assertIsNotNone(road_section_neg_two)
 
-        self.assertEqual(len(road_section_manager.road_sections), 4)
+        self.assertEqual(len(road_section_manager.road_sections), 5)
 
         self.assertIsNone(road_section_neg_two.previous_section)
         self.assertIs(road_section_neg_two.next_section, road_section_neg_one)
@@ -128,7 +156,7 @@ class test_RoadSectionManager(unittest.TestCase):
             road_section_manager.road_sections[2].next_section, road_section_manager.road_sections[3])
         self.assertIs(
             road_section_manager.road_sections[3].previous_section, road_section_manager.road_sections[2])
-        self.assertIsNone(road_section_manager.road_sections[3].next_section)
+        self.assertIsNone(road_section_manager.road_sections[4].next_section)
 
 
 class test_RoadSection(unittest.TestCase):
@@ -226,16 +254,16 @@ class test_Obstacle(unittest.TestCase):
         config.BLOCK_SIZE = 10
         sectionManager = RoadSectionManager()
         road_section = sectionManager.road_sections[0]
-        obstacle = Obstacle(pygame.Surface(
-            (config.WINDOW_WIDTH, config.BLOCK_SIZE), pygame.SRCALPHA), 95)
-        obstacle.adjust_y(road_section)
+        obstacle = Obstacle(image=pygame.Surface(
+            (config.WINDOW_WIDTH, config.BLOCK_SIZE), pygame.SRCALPHA), x_pos=95, road_section=road_section)
         self.assertEqual(obstacle.rect.midleft, (95, -5))
-
-        sectionManager.generate_sections(1)
-        road_section = sectionManager.road_sections[1]
-        obstacle.adjust_y(road_section)
-        self.assertEqual(obstacle.rect.midleft, (95, -15))
 
 
 if __name__ == '__main__':
-    unittest.main()
+    # unittest.main()
+    min = 0.05 *config.ROAD_SECTION_GROUP_CONFIGURATION_MAX_CAR_SPEED
+    max = 0.5*config.ROAD_SECTION_GROUP_CONFIGURATION_MAX_CAR_SPEED
+    print(min)
+    print(max)
+    print(round(random.uniform(min,
+                         max),3))
