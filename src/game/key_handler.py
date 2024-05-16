@@ -27,3 +27,6 @@ class HumanController:
         out_put = navigation_action
         navigation_action = "stay"
         return out_put
+
+    def setFitness(self, fitness):
+        print("fitness: ", fitness)

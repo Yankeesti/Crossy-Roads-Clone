@@ -34,10 +34,10 @@ class PlayerManager(object):
 
     def update(self):
         if (len(self.players) > 0):
-            for player in self.players:
-                player.update()
             self.min_player = max(self.players, key=lambda x: x.rect[1])
             self.max_player = min(self.players, key=lambda x: x.rect[1])
+            for player in self.players:
+                player.update()
             return True
         else:
             return False
@@ -59,6 +59,10 @@ class Player(pygame.sprite.Sprite):
         self.killing_y_point = config.MAX_BLOCKS_BACK*config.BLOCK_SIZE
         self.highest_section = currentSection
 
+    def kill(self):
+        self.controller.setFitness(self.highest_section.index)
+        self.manager.player_dead(self)
+
     def update(self):
         self.killing_y_point -= config.BLOCK_SIZE*config.BACK_BORDER_MOVEMENT_SPEED
         if self.moves.empty() == False:
@@ -74,7 +78,8 @@ class Player(pygame.sprite.Sprite):
             elif action == "down":
                 self.init_move_down()
         if self.rect[1] >= self.killing_y_point:
-            self.manager.player_dead(self)
+            print("Player died self called")
+            self.kill()
 
     def __repr__(self) -> str:
         return f"Player at {self.rect[0]},{self.rect[1]}, score: {self.highest_section.index}, current section: {self.sections[0]}"

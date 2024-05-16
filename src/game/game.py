@@ -23,13 +23,14 @@ class Camera:
         self.player_manager = players.PlayerManager([])
         self.display_surface = pygame.display.get_surface()
         self.last_player_position = (1, 1)
+        self.player_to_draw = self.player_manager.min_player
 
-    def draw(self, player: players.Player):  # draws the road sections and players
+    def draw(self):  # draws the road sections and players
         self.display_surface.fill((0, 0, 0))
         y_offset = (
-            player.rect[1] - (config.DISPLAYED_ROAD_SECTIONS - 3) * config.BLOCK_SIZE
+            self.player_to_draw.rect[1] - (config.DISPLAYED_ROAD_SECTIONS - 3) * config.BLOCK_SIZE
         )
-        for section in player.sections[0].get_sections_to_draw():
+        for section in self.player_to_draw.sections[0].get_sections_to_draw():
             section.draw(self.display_surface, y_offset)
         for player in self.player_manager.players:
             self.display_surface.blit(
@@ -43,33 +44,34 @@ class Camera:
         )
         pygame.display.update()
 
-    def draw_partially(self, player: players.Player):
-        pass
+    def set_player_to_draw(self, player: players.Player):
+        self.player_to_draw = player
 
 
 class Game:
-    def __init__(self, controllers=[key_handler.HumanController()]):
+    def __init__(self, controllers):
         self.road_section_manager = map.RoadSectionManager()
         self.playerManager = players.PlayerManager(controllers=controllers)
         self.road_section_manager.generate_sections(config.DISPLAYED_ROAD_SECTIONS + 3)
         self.camera = Camera()
 
-    def main(self):
-        clock = pygame.time.Clock()
-        self.camera.draw(self.playerManager.min_player)
-        while True:
-            clock.tick(60)
-            if (
-                key_handler.handle_key_press()["run"] == False
-                or self.playerManager.update() == False
-            ):
-                break
-            self.road_section_manager.update()
-            self.camera.draw(self.playerManager.min_player)
-        pygame.quit()
-        return self.playerManager.dead_players
+    def update(self):
+        if self.playerManager.update() == False:
+            return False
+        self.road_section_manager.update()
 
 
 if __name__ == "__main__":
-    game = Game()
-    print(game.main())
+    game = Game(controllers= [key_handler.HumanController()])
+    camera = Camera()
+
+    clock = pygame.time.Clock()
+    camera.draw()
+    while True:
+        clock.tick(60)
+        if key_handler.handle_key_press() == False or game.update() == False:
+            break
+        camera.draw()
+    pygame.quit()
+       
+    
