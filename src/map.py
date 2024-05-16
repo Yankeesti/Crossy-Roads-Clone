@@ -34,42 +34,24 @@ class RoadSectionManager(object):
                 config.ROAD_SECTION_GROUP_CONFIGURATION_WEIGHTS,
                 k=1,
             )[0]
-            for road_section_config in selected_group["road_sections"]:
-                if road_section_config["type"] == config.RoadSectionType.STATIC:
-                    self.road_sections.append(
-                        StaticRoadSection(
-                            len(self.road_sections),
-                            previous_section=self.road_sections[-1],
-                        )
+            for _ in range(selected_group["road_section_number"]):
+                self.road_sections.append(
+                    DynamicRoadSection(
+                        len(self.road_sections),
+                        previeous_section=self.road_sections[-1],
+                        car_number=random.randint(1, 4),
+                        car_speed=pick_random(
+                            0.3 * config.ROAD_SECTION_GROUP_CONFIGURATION_MAX_CAR_SPEED,
+                            config.ROAD_SECTION_GROUP_CONFIGURATION_MAX_CAR_SPEED,
+                            4,
+                        ),
+                        car_direction=random.choices(list(Direction), [0.5, 0.5], k=1)[
+                            0
+                        ],
+                        car_offset_from_screen_edge=random.randint(0, 4),
+                        car_distance=pick_random(2, 3, 3) * config.BLOCK_SIZE,
                     )
-                else:
-                    self.road_sections.append(
-                        DynamicRoadSection(
-                            len(self.road_sections),
-                            previeous_section=self.road_sections[-1],
-                            car_number=road_section_config["car_number"],
-                            car_speed=pick_random(
-                                road_section_config["car_speed"][0]
-                                * config.ROAD_SECTION_GROUP_CONFIGURATION_MAX_CAR_SPEED,
-                                road_section_config["car_speed"][1]
-                                * config.ROAD_SECTION_GROUP_CONFIGURATION_MAX_CAR_SPEED,
-                                4,
-                            ),
-                            car_direction=random.choices(
-                                road_section_config["car_direction"],
-                                road_section_config["car_direction_probabilitys"],
-                                k=1,
-                            )[0],
-                            car_offset_from_screen_edge=road_section_config[
-                                "car_offset_from_screen_edge"
-                            ],
-                            car_distance=pick_random(
-                                road_section_config["car_distance"][0],
-                                road_section_config["car_distance"][1],
-                                3,
-                            ),
-                        )
-                    )
+                )
                 self.road_sections[-2].next_section = self.road_sections[-1]
                 sections_created += 1
             self.road_sections.append(
@@ -79,11 +61,6 @@ class RoadSectionManager(object):
             )
             self.road_sections[-2].next_section = self.road_sections[-1]
             sections_created += 1
-
-        # for i in range(len(self.road_sections), len(self.road_sections)+min_generated_sections):
-        #     self.road_sections.append(DynamicRoadSection(i, previeous_section=self.road_sections[i-1], car_number=random.randint(
-        #         1, 5), car_speed=random.uniform(0.01, 0.1), car_direction=random.choice(list(Direction)), car_offset_from_screen_edge=random.randint(1, 500), car_distance=random.uniform(1.3, 4)*config.BLOCK_SIZE))
-        #     self.road_sections[i-1].next_section = self.road_sections[i]
 
     def update(self):
         for road_section in self.road_sections:
@@ -167,9 +144,9 @@ class StaticRoadSection(RoadSection):
                 random.randint(1, config.ROAD_COLUMNS // 4),
             )
         if index % 2 == 0:
-            image.fill((37, 255, 0, 255))
-        else:
             image.fill((0, 161, 43, 255))
+        else:
+            image.fill((37, 255, 0, 255))
         super().__init__(
             index=index,
             surface=image,

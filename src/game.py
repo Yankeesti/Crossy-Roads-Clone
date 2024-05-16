@@ -66,10 +66,10 @@ class Game:
                 break
             self.road_section_manager.update()
             self.camera.draw(self.playerManager.min_player)
-        print(self.playerManager.dead_players)
         pygame.quit()
+        return self.playerManager.dead_players
 
 
 if __name__ == "__main__":
     game = Game()
-    game.main()
+    print(game.main())
