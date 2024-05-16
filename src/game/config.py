@@ -1,12 +1,14 @@
 import pygame
-from enums import RoadSectionType, Direction
+from .enums import RoadSectionType, Direction
 
 BLOCK_SIZE = 100
 ROAD_COLUMNS = 9
 DISPLAYED_ROAD_SECTIONS = 10
 UNSTEPABLEE_COLUMNS = 2  # unusable cullums at each side of the road
+BORDER_LEFT = BLOCK_SIZE * UNSTEPABLEE_COLUMNS
+BORDER_RIGHT = BLOCK_SIZE * (ROAD_COLUMNS + UNSTEPABLEE_COLUMNS)
 MAX_BLOCKS_BACK = 6
-BACK_BORDER_MOVEMENT_SPEED = 0.02  # Blocks per Tick
+BACK_BORDER_MOVEMENT_SPEED = 0.05  # Blocks per Tick
 PLAYER_SPEED = 10  # Ticks needed to move 1 Block
 
 

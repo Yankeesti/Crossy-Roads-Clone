@@ -1,9 +1,8 @@
 from typing import Iterable
 import pygame
-import key_handler
-import config
-import map
-import players
+from . import config
+from . import map
+from . import players
 
 
 WIN = pygame.display.set_mode((config.WINDOW_WIDTH, config.WINDOW_HEIGHT))
@@ -61,17 +60,17 @@ class Game:
         self.road_section_manager.update()
 
 
-if __name__ == "__main__":
-    game = Game(controllers= [key_handler.HumanController()])
-    camera = Camera()
+# if __name__ == "__main__":
+#     game = Game(controllers= [key_handler.HumanController()])
+#     camera = Camera()
 
-    clock = pygame.time.Clock()
-    camera.draw()
-    while True:
-        clock.tick(60)
-        if key_handler.handle_key_press() == False or game.update() == False:
-            break
-        camera.draw()
-    pygame.quit()
+#     clock = pygame.time.Clock()
+#     camera.draw()
+#     while True:
+#         clock.tick(60)
+#         if key_handler.handle_key_press() == False or game.update() == False:
+#             break
+#         camera.draw()
+#     pygame.quit()
        
     
