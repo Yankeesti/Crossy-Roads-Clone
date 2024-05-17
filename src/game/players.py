@@ -75,10 +75,21 @@ class Player(pygame.sprite.Sprite):
     def kill(self):
         if self.dead == False:
             tempfitness = self.highest_section.index
-            if self.moves_executet["stay"] == max(self.moves_executet.values()):
+            temp = sum(self.moves_executet.values())
+            for key, value in self.moves_executet.items():
+                self.moves_executet[key] = value / temp * 100
+            if(self.moves_executet["up"] == 100):
+                tempfitness = 0
+            if(self.moves_executet["up"] > 80):
+                tempfitness *= 0.6
+            if(self.moves_executet["stay"] > 50):
+                tempfitness *= 1.4
+            if(self.moves_executet["left"] > 5):
                 tempfitness *= 1.2
-            if self.moves_executet["up"] == max(self.moves_executet.values()):
-                tempfitness *= 0.8
+            if(self.moves_executet["right"] > 5):
+                tempfitness *= 1.2
+            if(self.moves_executet["down"] > 3):
+                tempfitness *= 1.2
             self.controller.setFitness(tempfitness)
             self.manager.player_dead(self)
             super().kill()
