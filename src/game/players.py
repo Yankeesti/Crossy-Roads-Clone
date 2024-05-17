@@ -50,9 +50,6 @@ class PlayerManager(object):
                 player.update()
             return True
         else:
-            print(
-                f"Highscore ({max(self.dead_players, key=lambda x: x.highest_section.index).highest_section.index}), dead Players ({len(self.dead_players)})"
-            )
             return False
 
 

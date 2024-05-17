@@ -72,34 +72,50 @@ class genome_controller:
             if(self.moves_executet["down"] > 3):
                 self.genome.fitness += 0.3*unbalanced_fitness
 
+# def eval_genomes(genomes, config):
+#     pygame.init()
+#     global camera_navigation_action
+#     controllers = [genome_controller(genome, config) for genome_id, genome in genomes]
+#     global gameObj
+#     for i in range(20):
+#         if gameObj is None:
+#             gameObj = game.Game(controllers)
+#         else:
+#             gameObj.reset(controllers)
+#         camera = game.Camera()
+#         camera.draw_operated_over_keyboard(camera_navigation_action)
+#         while True:
+#             if gameObj.update() == False:
+#                 break
+#             handle_key_press()
+#             camera.draw_operated_over_keyboard(camera_navigation_action)
+#     for controller in controllers:
+#         controller.calc_fitness()
+
 def eval_genomes(genomes, config):
     pygame.init()
-    global camera_navigation_action
     controllers = [genome_controller(genome, config) for genome_id, genome in genomes]
     global gameObj
-    for i in range(20):
+    for i in range(40):
         if gameObj is None:
             gameObj = game.Game(controllers)
         else:
             gameObj.reset(controllers)
-        camera = game.Camera()
-        camera.draw_operated_over_keyboard(camera_navigation_action)
         while True:
             if gameObj.update() == False:
                 break
-            handle_key_press()
-            camera.draw_operated_over_keyboard(camera_navigation_action)
     for controller in controllers:
         controller.calc_fitness()
 
 
 def run_neat(config):
-    p = neat.Checkpointer.restore_checkpoint("neat-checkpoint-47")
-    # p = neat.Population(config)
+    # p = neat.Checkpointer.restore_checkpoint("neat-checkpoint-80")
+    p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
+    p
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(1))
+    p.add_reporter(neat.Checkpointer(5))
 
     p.run(eval_genomes, 1000)
 
