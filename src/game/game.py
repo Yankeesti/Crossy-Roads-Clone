@@ -78,6 +78,8 @@ class Game:
         self.playerManager = players.PlayerManager(controllers=controllers)
         self.road_section_manager.generate_sections(config.DISPLAYED_ROAD_SECTIONS + 20)
         self.camera = Camera()
+        for _ in range(300):
+            self.road_section_manager.update()
 
     def update(self):
         if self.playerManager.update() == False:
