@@ -252,7 +252,7 @@ class DynamicRoadSection(RoadSection):
 
     def get_obstacal_positions_relative_to_player(self, player):
         car_positions = [
-            ((car.rect[0] - player.rect[0]) / config.BLOCK_SIZE, car.speed)
+            car.get_position_relative_to_player(player)
             for car in self.cars
         ]
         car_positions.sort(key=lambda pos: abs(pos[0]))

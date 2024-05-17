@@ -40,6 +40,12 @@ class DynamicObstacleMovingRight(DynamicObstacle):
         self.rect.move_ip(self.speed*config.BLOCK_SIZE, 0)
         if self.rect[0] > config.WINDOW_WIDTH:
             self.rect[0] = 0
+        
+    def get_position_relative_to_player(self, player):
+        distance =  ( self.rect.right - player.rect.left)/config.BLOCK_SIZE
+        if distance > 0 and distance < 1:
+            distance = 0
+        return (distance,self.speed)
 
 
 class DynamicObstacleMovingLeft(DynamicObstacle):
@@ -51,3 +57,9 @@ class DynamicObstacleMovingLeft(DynamicObstacle):
         self.rect.move_ip(self.speed*config.BLOCK_SIZE, 0)
         if self.rect.right < 0:
             self.rect.left = config.WINDOW_WIDTH
+
+    def get_position_relative_to_player(self, player):
+        distance =  (self.rect.left - player.rect.right)/config.BLOCK_SIZE
+        if distance < 0 and distance > -1:
+            distance = 0
+        return (distance,self.speed)

@@ -98,17 +98,17 @@ class Player(pygame.sprite.Sprite):
                 self.controller.moves_executet["down"] += 1
             else:
                 self.controller.moves_executet["stay"] += 1
-        if self.rect[1] >= self.killing_y_point:
+        if self.rect.bottom >= self.killing_y_point:
             self.kill()
 
     def calc_input(self):
         input = []
         input.append(
-            (self.killing_y_point - self.rect[1]) / config.BLOCK_SIZE
+            abs(self.rect.bottom-self.killing_y_point) / config.BLOCK_SIZE
         )  # Distance to death
         input.append(
             -(self.rect.left - config.BORDER_LEFT) / config.BLOCK_SIZE
-        )  # space to left border
+        )  # space to left borderd
         input.append(
             -(self.rect.right - config.BORDER_RIGHT) / config.BLOCK_SIZE
         )  # space to right border
@@ -191,7 +191,7 @@ class Player(pygame.sprite.Sprite):
 
     def update_killing_y_point(self):
         new_killing_y_point = (
-            self.sections[0].rect.bottomleft[1]
+            self.sections[0].rect.bottom
             + config.MAX_BLOCKS_BACK * config.BLOCK_SIZE
         )
         if self.killing_y_point > new_killing_y_point:
