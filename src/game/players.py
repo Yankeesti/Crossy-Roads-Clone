@@ -70,11 +70,16 @@ class Player(pygame.sprite.Sprite):
         self.killing_y_point = config.MAX_BLOCKS_BACK * config.BLOCK_SIZE
         self.highest_section = currentSection
         self.dead = False
-        self.moves = {"left": 0, "right": 0, "up": 0, "down": 0, "stay": 0}
+        self.moves_executet = {"left": 0, "right": 0, "up": 0, "down": 0, "stay": 0}
 
     def kill(self):
         if self.dead == False:
-            self.controller.setFitness(self.highest_section.index + 1)
+            tempfitness = self.highest_section.index
+            if self.moves_executet["stay"] == max(self.moves_executet.values()):
+                tempfitness *= 1.2
+            if self.moves_executet["up"] == max(self.moves_executet.values()):
+                tempfitness *= 0.8
+            self.controller.setFitness(tempfitness)
             self.manager.player_dead(self)
             super().kill()
             self.dead = True
@@ -87,26 +92,26 @@ class Player(pygame.sprite.Sprite):
             action = self.controller.get_action(self.calc_input())
             if action == "left":
                 self.init_move_left()
-                self.moves["left"] += 1
+                self.moves_executet["left"] += 1
             elif action == "right":
                 self.init_move_right()
-                self.moves["right"] += 1
+                self.moves_executet["right"] += 1
             elif action == "up":
                 self.init_move_up()
-                self.moves["up"] += 1
+                self.moves_executet["up"] += 1
             elif action == "down":
                 self.init_move_down()
-                self.moves["down"] += 1
+                self.moves_executet["down"] += 1
             else:
-                self.moves["stay"] += 1
+                self.moves_executet["stay"] += 1
         if self.rect[1] >= self.killing_y_point:
             self.kill()
 
     def calc_input(self):
         input = []
-        input.append((self.killing_y_point - self.rect[1]))  # Distance to death
-        input.append(-(self.rect.left - config.BORDER_LEFT))  # space to left border
-        input.append(-(self.rect.right - config.BORDER_RIGHT))  # space to right border
+        input.append((self.killing_y_point - self.rect[1])/config.BLOCK_SIZE)  # Distance to death
+        input.append(-(self.rect.left - config.BORDER_LEFT)/config.BLOCK_SIZE)  # space to left border
+        input.append(-(self.rect.right - config.BORDER_RIGHT)/config.BLOCK_SIZE)  # space to right border
         input.append(
             self.sections[0].previous_section.get_obstacal_positions_relative_to_player(
                 self

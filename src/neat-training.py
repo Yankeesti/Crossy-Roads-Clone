@@ -3,11 +3,26 @@ import neat
 import game
 import os
 import itertools
-import importlib
 
 directions = {0: "left", 1: "right", 2: "up", 3: "down", 4: "Stay"}
 gameObj = None
 clock = pygame.time.Clock()
+camera_navigation_action = "stay"
+
+
+def handle_key_press():
+
+    global camera_navigation_action
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_w:
+                camera_navigation_action = "up"
+            if event.key == pygame.K_s:
+                camera_navigation_action = "down"
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_w or event.key == pygame.K_s:
+                camera_navigation_action = "stay"
+        
 
 
 class genome_controller:
@@ -42,6 +57,7 @@ class genome_controller:
 
 def eval_genomes(genomes, config):
     pygame.init()
+    global camera_navigation_action
     controllers = [genome_controller(genome, config) for genome_id, genome in genomes]
     global gameObj
     for i in range(10):
@@ -50,13 +66,12 @@ def eval_genomes(genomes, config):
         else:
             gameObj.reset(controllers)
         camera = game.Camera()
-        camera.set_player_to_draw(gameObj.playerManager.max_player)
-        camera.draw()
+        camera.draw_operated_over_keyboard(camera_navigation_action)
         while True:
             if gameObj.update() == False:
                 break
-            camera.set_player_to_draw(gameObj.playerManager.max_player)
-            camera.draw()
+            handle_key_press()
+            camera.draw_operated_over_keyboard(camera_navigation_action)
     for controller in controllers:
         controller.calc_fitness()
 

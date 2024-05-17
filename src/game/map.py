@@ -66,6 +66,10 @@ class RoadSectionManager(object):
         for road_section in self.road_sections:
             road_section.update()
 
+    def get_sections_to_draw(self, y):
+        y = int((abs(y) - config.WINDOW_HEIGHT) // config.BLOCK_SIZE)
+        return self.road_sections[y + 2].get_sections_to_draw()
+
 
 # Roadsections should only be created by RoadSectionManager
 
@@ -156,7 +160,6 @@ class StaticRoadSection(RoadSection):
         self.static_obstacles = pygame.sprite.Group()
         self.init_static_obstacles(static_obstacle_pos)
 
-
     def init_static_obstacles(self, static_obstacle_pos: list):
         for pos in static_obstacle_pos:
             self.static_obstacles.add(
@@ -164,9 +167,12 @@ class StaticRoadSection(RoadSection):
             )
 
     def get_obstacal_positions_relative_to_player(self, player):
-        obstacle_pos = [((obstacle.rect[0] - player.rect[0])/config.BLOCK_SIZE, 0) for obstacle in self.static_obstacles]
+        obstacle_pos = [
+            ((obstacle.rect[0] - player.rect[0]) / config.BLOCK_SIZE, 0)
+            for obstacle in self.static_obstacles
+        ]
         obstacle_pos.sort(key=lambda pos: abs(pos[0]))
-        default_values = [(15, 0)] *(3-len(obstacle_pos))
+        default_values = [(15, 0)] * (3 - len(obstacle_pos))
         obstacle_pos.extend(default_values)
         return obstacle_pos
 
@@ -245,12 +251,15 @@ class DynamicRoadSection(RoadSection):
             )
 
     def get_obstacal_positions_relative_to_player(self, player):
-        car_positions = [((car.rect[0] - player.rect[0])/config.BLOCK_SIZE, car.speed) for car in self.cars]
+        car_positions = [
+            ((car.rect[0] - player.rect[0]) / config.BLOCK_SIZE, car.speed)
+            for car in self.cars
+        ]
         car_positions.sort(key=lambda pos: abs(pos[0]))
-        default_values = [(15, 0)] *(3-len(car_positions))
+        default_values = [(15, 0)] * (3 - len(car_positions))
         car_positions.extend(default_values)
         return car_positions
-    
+
     def init_cars_move_right(
         self,
         car_offset_from_screen_edge: int,
@@ -264,7 +273,6 @@ class DynamicRoadSection(RoadSection):
                 obstacles.DynamicObstacleMovingRight(car_speed, self, x_pos=x_pos)
             )
             x_pos -= config.BLOCK_SIZE + car_distance
-            
 
     def init_cars_move_left(
         self,
