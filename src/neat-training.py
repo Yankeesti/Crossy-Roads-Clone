@@ -32,6 +32,7 @@ class genome_controller:
         if genome.fitness is None:
             genome.fitness = 1
         self.fitnesses = []
+        self.moves_executet = {"left": 0, "right": 0, "up": 0, "down": 0, "stay": 0}
 
     def get_action(self, inputs):
         flat_list = list(
@@ -52,8 +53,24 @@ class genome_controller:
 
     def calc_fitness(self):
         self.genome.fitness = sum(self.fitnesses) / len(self.fitnesses)
-        self.fitnesses = []
+        unbalanced_fitness = self.genome.fitness
+        temp = sum(self.moves_executet.values())
+        for key, value in self.moves_executet.items():
+                self.moves_executet[key] = value / temp * 100
 
+        if(self.moves_executet["up"] > 98):
+                self.genome.fitness *= 0.3
+        else:
+            if(self.moves_executet["up"] > 90):
+                self.genome.fitness *= 0.6
+            if(self.moves_executet["stay"] > 30):
+                self.genome.fitness += 0.4*unbalanced_fitness
+            if(self.moves_executet["left"] > 8):
+                self.genome.fitness += 0.3*unbalanced_fitness
+            if(self.moves_executet["right"] > 8):
+                self.genome.fitness += 0.3*unbalanced_fitness
+            if(self.moves_executet["down"] > 3):
+                self.genome.fitness += 0.3*unbalanced_fitness
 
 def eval_genomes(genomes, config):
     pygame.init()
@@ -77,8 +94,8 @@ def eval_genomes(genomes, config):
 
 
 def run_neat(config):
-    # p = neat.Checkpointer.restore_checkpoint("neat-checkpoint-4")
-    p = neat.Population(config)
+    p = neat.Checkpointer.restore_checkpoint("neat-checkpoint-47")
+    # p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
