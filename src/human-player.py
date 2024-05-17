@@ -24,24 +24,42 @@ def handle_key_press():
 
 
 class HumanController:
-    def get_action(self,input):
+    def get_action(self, input):
         global navigation_action
         out_put = navigation_action
         navigation_action = "stay"
-        flat_list = list(itertools.chain.from_iterable((i if isinstance(i, list) else [i] for i in input)))
-        flat_list = list(itertools.chain.from_iterable((i if isinstance(i, tuple) else [i] for i in flat_list)))
-
-        print(flat_list, len(flat_list))
+        flat_list = list(
+            itertools.chain.from_iterable(
+                (i if isinstance(i, list) else [i] for i in input)
+            )
+        )
+        flat_list = list(
+            itertools.chain.from_iterable(
+                (i if isinstance(i, tuple) else [i] for i in flat_list)
+            )
+        )
+        print(input)
         return out_put
 
     def setFitness(self, fitness):
-        print("fitness: ", fitness)
+        print(fitness)
 
 
-gameClass = game.Game(controllers=[HumanController()])
+controller = HumanController()
+gameClass = game.Game(controllers=[controller])
 camera = game.Camera()
 
 clock = pygame.time.Clock()
+camera.draw()
+while True:
+    clock.tick(60)
+    if handle_key_press() == False or gameClass.update() == False:
+        break
+    camera.draw()
+
+gameClass.reset(controllers=[controller])
+camera = game.Camera()
+camera.set_player_to_draw(gameClass.playerManager.players[0])
 camera.draw()
 while True:
     clock.tick(60)

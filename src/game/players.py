@@ -69,10 +69,15 @@ class Player(pygame.sprite.Sprite):
         self.manager = manager
         self.killing_y_point = config.MAX_BLOCKS_BACK * config.BLOCK_SIZE
         self.highest_section = currentSection
+        self.dead = False
+        self.moves = {"left": 0, "right": 0, "up": 0, "down": 0, "stay": 0}
 
     def kill(self):
-        self.controller.setFitness(self.highest_section.index + 1)
-        self.manager.player_dead(self)
+        if self.dead == False:
+            self.controller.setFitness(self.highest_section.index + 1)
+            self.manager.player_dead(self)
+            super().kill()
+            self.dead = True
 
     def update(self):
         self.killing_y_point -= config.BLOCK_SIZE * config.BACK_BORDER_MOVEMENT_SPEED
@@ -82,14 +87,19 @@ class Player(pygame.sprite.Sprite):
             action = self.controller.get_action(self.calc_input())
             if action == "left":
                 self.init_move_left()
+                self.moves["left"] += 1
             elif action == "right":
                 self.init_move_right()
+                self.moves["right"] += 1
             elif action == "up":
                 self.init_move_up()
+                self.moves["up"] += 1
             elif action == "down":
                 self.init_move_down()
+                self.moves["down"] += 1
+            else:
+                self.moves["stay"] += 1
         if self.rect[1] >= self.killing_y_point:
-            print("Player died self called")
             self.kill()
 
     def calc_input(self):
@@ -170,14 +180,17 @@ class Player(pygame.sprite.Sprite):
                     self.update_highest_section(),
                     self.sections[0].remove_player(self),
                     setattr(self, "sections", [self.sections[1]]),
-                    setattr(
-                        self,
-                        "killing_y_point",
-                        self.sections[0].rect.bottomleft[1]
-                        + config.MAX_BLOCKS_BACK * config.BLOCK_SIZE,
-                    ),
+                    self.update_killing_y_point(),
                 )
             )
+
+    def update_killing_y_point(self):
+        new_killing_y_point = (
+            self.sections[0].rect.bottomleft[1]
+            + config.MAX_BLOCKS_BACK * config.BLOCK_SIZE
+        )
+        if self.killing_y_point > new_killing_y_point:
+            self.killing_y_point = new_killing_y_point
 
     def move_up(self):
         # print("up")

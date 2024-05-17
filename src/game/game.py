@@ -51,13 +51,18 @@ class Game:
     def __init__(self, controllers):
         self.road_section_manager = map.RoadSectionManager()
         self.playerManager = players.PlayerManager(controllers=controllers)
-        self.road_section_manager.generate_sections(config.DISPLAYED_ROAD_SECTIONS + 3)
+        self.road_section_manager.generate_sections(config.DISPLAYED_ROAD_SECTIONS + 20)
         self.camera = Camera()
 
     def update(self):
         if self.playerManager.update() == False:
             return False
         self.road_section_manager.update()
+
+    def reset(self,controllers):
+        map.RoadSectionManager._instance = None
+        players.PlayerManager._instance = None
+        self.__init__(controllers)
 
 
 # if __name__ == "__main__":

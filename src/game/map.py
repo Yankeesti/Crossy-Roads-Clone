@@ -26,7 +26,7 @@ class RoadSectionManager(object):
             section_neg_one.next_section = cls._instance.road_sections[0]
         return cls._instance
 
-    def generate_sections(self, min_generated_sections=1):
+    def generate_sections(self, min_generated_sections=10):
         sections_created = 0
         while sections_created < min_generated_sections:
             selected_group = random.choices(
@@ -164,8 +164,9 @@ class StaticRoadSection(RoadSection):
             )
 
     def get_obstacal_positions_relative_to_player(self, player):
-        obstacle_pos = [(obstacle.rect[0] - player.rect[0], 0) for obstacle in self.static_obstacles]
-        default_values = [(100000, 0)] *(3-len(obstacle_pos))
+        obstacle_pos = [((obstacle.rect[0] - player.rect[0])/config.BLOCK_SIZE, 0) for obstacle in self.static_obstacles]
+        obstacle_pos.sort(key=lambda pos: abs(pos[0]))
+        default_values = [(15, 0)] *(3-len(obstacle_pos))
         obstacle_pos.extend(default_values)
         return obstacle_pos
 
@@ -244,8 +245,9 @@ class DynamicRoadSection(RoadSection):
             )
 
     def get_obstacal_positions_relative_to_player(self, player):
-        car_positions = [(car.rect[0] - player.rect[0], car.speed) for car in self.cars]
-        default_values = [(100000, 0)] *(3-len(car_positions))
+        car_positions = [((car.rect[0] - player.rect[0])/config.BLOCK_SIZE, car.speed) for car in self.cars]
+        car_positions.sort(key=lambda pos: abs(pos[0]))
+        default_values = [(15, 0)] *(3-len(car_positions))
         car_positions.extend(default_values)
         return car_positions
     
