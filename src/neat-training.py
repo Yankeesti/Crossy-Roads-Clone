@@ -60,7 +60,7 @@ def eval_genomes(genomes, config):
     global camera_navigation_action
     controllers = [genome_controller(genome, config) for genome_id, genome in genomes]
     global gameObj
-    for i in range(10):
+    for i in range(20):
         if gameObj is None:
             gameObj = game.Game(controllers)
         else:
