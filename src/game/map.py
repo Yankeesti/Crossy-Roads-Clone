@@ -49,7 +49,7 @@ class RoadSectionManager(object):
                             0
                         ],
                         car_offset_from_screen_edge=random.randint(0, 4),
-                        car_distance=pick_random(1, 3, 3) * config.BLOCK_SIZE,
+                        car_distance=pick_random(1.5, 3, 3) * config.BLOCK_SIZE,
                     )
                 )
                 self.road_sections[-2].next_section = self.road_sections[-1]
