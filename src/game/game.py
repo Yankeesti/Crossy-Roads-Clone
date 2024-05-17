@@ -23,17 +23,18 @@ class Camera:
         self.display_surface = pygame.display.get_surface()
         self.last_player_position = (1, 1)
         self.player_to_draw = self.player_manager.min_player
+        self.y_offset = 0
 
     def draw(self):  # draws the road sections and players
         self.display_surface.fill((0, 0, 0))
-        y_offset = (
+        self.y_offset = (
             self.player_to_draw.rect[1] - (config.DISPLAYED_ROAD_SECTIONS - 3) * config.BLOCK_SIZE
         )
         for section in self.player_to_draw.sections[0].get_sections_to_draw():
-            section.draw(self.display_surface, y_offset)
+            section.draw(self.display_surface, self.y_offset)
         for player in self.player_manager.players:
             self.display_surface.blit(
-                player.image, (player.rect[0], player.rect[1] - y_offset)
+                player.image, (player.rect[0], player.rect[1] - self.y_offset)
             )
         # drawn grey transparent rectangle to highlightws unplayable area
         self.display_surface.blit(BORDER_SURFACE, (0, 0))
@@ -45,7 +46,28 @@ class Camera:
 
     def set_player_to_draw(self, player: players.Player):
         self.player_to_draw = player
+        
 
+    def draw_operated_over_keyboard(self,input):
+        self.display_surface.fill((0, 0, 0))
+        if input == "up":
+            self.y_offset -= config.BLOCK_SIZE
+        elif input == "down":
+            self.y_offset += config.BLOCK_SIZE
+
+        for section in self.road_section_manager.get_sections_to_draw(y_offset=self.y_offset):
+            section.draw(self.display_surface, self.y_offset)
+        for player in self.player_manager.players:
+            self.display_surface.blit(
+                player.image, (player.rect[0], player.rect[1] - self.y_offset)
+            )
+        
+        self.display_surface.blit(BORDER_SURFACE, (0, 0))
+        self.display_surface.blit(
+            BORDER_SURFACE,
+            (config.WINDOW_WIDTH - config.BLOCK_SIZE * config.UNSTEPABLEE_COLUMNS, 0),
+        )
+        pygame.display.update()
 
 class Game:
     def __init__(self, controllers):

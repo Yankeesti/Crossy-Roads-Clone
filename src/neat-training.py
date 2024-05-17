@@ -9,6 +9,7 @@ directions = {0: "left", 1: "right", 2: "up", 3: "down", 4: "Stay"}
 gameObj = None
 clock = pygame.time.Clock()
 
+
 class genome_controller:
     def __init__(self, genome, config):
         self.genome = genome
@@ -27,7 +28,7 @@ class genome_controller:
             itertools.chain.from_iterable(
                 (i if isinstance(i, tuple) else [i] for i in flat_list)
             )
-        ) 
+        )
         output = self.net.activate(tuple(flat_list))
         return directions[output.index(max(output))]
 
@@ -43,7 +44,7 @@ def eval_genomes(genomes, config):
     pygame.init()
     controllers = [genome_controller(genome, config) for genome_id, genome in genomes]
     global gameObj
-    for i in range(20):
+    for i in range(10):
         if gameObj is None:
             gameObj = game.Game(controllers)
         else:
@@ -55,14 +56,14 @@ def eval_genomes(genomes, config):
             if gameObj.update() == False:
                 break
             camera.set_player_to_draw(gameObj.playerManager.max_player)
-            camera.draw() 
+            camera.draw()
     for controller in controllers:
         controller.calc_fitness()
 
 
 def run_neat(config):
-    p = neat.Checkpointer.restore_checkpoint("neat-checkpoint-130")
-    # p = neat.Population(config)
+    # p = neat.Checkpointer.restore_checkpoint("neat-checkpoint-4")
+    p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
