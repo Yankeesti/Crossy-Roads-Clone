@@ -52,61 +52,55 @@ class genome_controller:
 
     def calc_fitness(self):
         self.genome.fitness = sum(self.fitnesses) / len(self.fitnesses)
-        unbalanced_fitness = self.genome.fitness
         temp = sum(self.moves_executet.values())
         for key, value in self.moves_executet.items():
             self.moves_executet[key] = value / temp * 100
 
         if self.moves_executet["up"] > 98:
-            self.genome.fitness *= 0.3
+            self.genome.fitness *= 0.7
         else:
             if self.moves_executet["up"] > 90:
-                self.genome.fitness *= 0.6
-            if self.moves_executet["stay"] > 30:
-                self.genome.fitness += 0.4 * unbalanced_fitness
-            if self.moves_executet["left"] > 8:
-                self.genome.fitness += 0.3 * unbalanced_fitness
-            if self.moves_executet["right"] > 8:
-                self.genome.fitness += 0.3 * unbalanced_fitness
-            if self.moves_executet["down"] > 3:
-                self.genome.fitness += 0.3 * unbalanced_fitness
+                self.genome.fitness *= 0.85
 
-
-def eval_genomes(genomes, config):
-    pygame.init()
-    global camera_navigation_action
-    controllers = [genome_controller(genome, config) for genome_id, genome in genomes]
-    global gameObj
-    for i in range(20):
-        if gameObj is None:
-            gameObj = game.Game(controllers)
-        else:
-            gameObj.reset(controllers)
-        camera = game.Camera()
-        camera.draw_operated_over_keyboard(camera_navigation_action)
-        while True:
-            if gameObj.update() == False:
-                break
-            handle_key_press()
-            camera.draw_operated_over_keyboard(camera_navigation_action)
-    for controller in controllers:
-        controller.calc_fitness()
-
+    
 
 # def eval_genomes(genomes, config):
 #     pygame.init()
+#     global camera_navigation_action
 #     controllers = [genome_controller(genome, config) for genome_id, genome in genomes]
 #     global gameObj
-#     for i in range(40):
+#     for i in range(20):
 #         if gameObj is None:
 #             gameObj = game.Game(controllers)
 #         else:
 #             gameObj.reset(controllers)
+#         camera = game.Camera()
+#         camera.draw_operated_over_keyboard(camera_navigation_action)
 #         while True:
 #             if gameObj.update() == False:
 #                 break
+#             handle_key_press()
+#             camera.draw_operated_over_keyboard(camera_navigation_action)
 #     for controller in controllers:
 #         controller.calc_fitness()
+
+
+def eval_genomes(genomes, config):
+    print(len(genomes))
+    pygame.init()
+    controllers = [genome_controller(genome, config) for genome_id, genome in genomes]
+    global gameObj
+    for i in range(80):
+        if gameObj is None:
+            gameObj = game.Game(controllers)
+        else:
+            gameObj.reset(controllers)
+        while True:
+            if gameObj.update() == False:
+                break
+    for controller in controllers:
+        controller.calc_fitness()
+        
 
 # def eval_genomes(genomes, config,split=2):
 #     pygame.init()
@@ -134,7 +128,7 @@ def eval_genomes(genomes, config):
 #         controller.calc_fitness()
 
 def run_neat(config):
-    p = neat.Checkpointer.restore_checkpoint("neat-checkpoint-61")
+    p = neat.Checkpointer.restore_checkpoint("neat-checkpoint-121")
     # p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
@@ -148,12 +142,7 @@ if __name__ == "__main__":
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, "config.txt")
 
-    config = neat.Config(
-        neat.DefaultGenome,
-        neat.DefaultReproduction,
-        neat.DefaultSpeciesSet,
-        neat.DefaultStagnation,
-        config_path,
-    )
-    config = None
+    config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                         neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                         config_path)
     run_neat(config)
