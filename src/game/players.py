@@ -70,6 +70,7 @@ class Player(pygame.sprite.Sprite):
         self.killing_y_point = config.MAX_BLOCKS_BACK * config.BLOCK_SIZE
         self.highest_section = currentSection
         self.dead = False
+        self.last_input_fetch = config.INPUT_FETCH_INTERVAL
 
     def kill(self):
         if self.dead == False:
@@ -83,23 +84,27 @@ class Player(pygame.sprite.Sprite):
         if self.moves.empty() == False:
             self.moves.get()()
         else:
-            action = self.controller.get_action(self.calc_input())
-            if action == "left":
-                self.init_move_left()
-                self.controller.moves_executet["left"] += 1
-            elif action == "right":
-                self.init_move_right()
-                self.controller.moves_executet["right"] += 1
-            elif action == "up":
-                self.init_move_up()
-                self.controller.moves_executet["up"] += 1
-            elif action == "down":
-                self.init_move_down()
-                self.controller.moves_executet["down"] += 1
-            else:
-                self.controller.moves_executet["stay"] += 1
+            if self.last_input_fetch >= config.INPUT_FETCH_INTERVAL:
+                action = self.controller.get_action(self.calc_input())
+                if action == "left":
+                    self.init_move_left()
+                    self.controller.moves_executet["left"] += 1
+                elif action == "right":
+                    self.init_move_right()
+                    self.controller.moves_executet["right"] += 1
+                elif action == "up":
+                    self.init_move_up()
+                    self.controller.moves_executet["up"] += 1
+                elif action == "down":
+                    self.init_move_down()
+                    self.controller.moves_executet["down"] += 1
+                else:
+                    self.controller.moves_executet["stay"] += 1
+                self.last_input_fetch = -1
         if self.rect.bottom >= self.killing_y_point:
             self.kill()
+        else:
+            self.last_input_fetch += 1
 
     def calc_input(self):
         input = []
