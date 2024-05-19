@@ -8,7 +8,8 @@ directions = {0: "left", 1: "right", 2: "up", 3: "down", 4: "Stay"}
 gameObj = None
 clock = pygame.time.Clock()
 camera_navigation_action = "stay"
-
+best_fitness = (0,None)
+highest_score = 0
 
 def handle_key_press():
 
@@ -48,9 +49,13 @@ class genome_controller:
         return directions[output.index(max(output))]
 
     def setFitness(self, fitness):
+        global highest_score
         self.fitnesses.append(fitness)
+        if fitness > highest_score:
+            highest_score = fitness
 
     def calc_fitness(self):
+        global best_fitness
         self.genome.fitness = sum(self.fitnesses) / len(self.fitnesses)
         temp = sum(self.moves_executet.values())
         for key, value in self.moves_executet.items():
@@ -61,33 +66,12 @@ class genome_controller:
         else:
             if self.moves_executet["up"] > 90:
                 self.genome.fitness *= 0.85
-
+        best_fitness = (self.genome.fitness,self.genome) if self.genome.fitness > best_fitness[0] else best_fitness
     
 
-# def eval_genomes(genomes, config):
-#     pygame.init()
-#     global camera_navigation_action
-#     controllers = [genome_controller(genome, config) for genome_id, genome in genomes]
-#     global gameObj
-#     for i in range(20):
-#         if gameObj is None:
-#             gameObj = game.Game(controllers)
-#         else:
-#             gameObj.reset(controllers)
-#         camera = game.Camera()
-#         camera.draw_operated_over_keyboard(camera_navigation_action)
-#         while True:
-#             if gameObj.update() == False:
-#                 break
-#             handle_key_press()
-#             camera.draw_operated_over_keyboard(camera_navigation_action)
-#     for controller in controllers:
-#         controller.calc_fitness()
-
-
 def eval_genomes(genomes, config):
-    print(len(genomes))
     pygame.init()
+    global camera_navigation_action
     controllers = [genome_controller(genome, config) for genome_id, genome in genomes]
     global gameObj
     for i in range(80):
@@ -95,12 +79,35 @@ def eval_genomes(genomes, config):
             gameObj = game.Game(controllers)
         else:
             gameObj.reset(controllers)
+        camera = game.Camera()
+        camera.draw_operated_over_keyboard(camera_navigation_action)
         while True:
+            clock.tick(60)
             if gameObj.update() == False:
                 break
+            handle_key_press()
+            camera.draw_operated_over_keyboard(camera_navigation_action)
     for controller in controllers:
         controller.calc_fitness()
-        
+
+
+# def eval_genomes(genomes, config):
+#     pygame.init()
+#     controllers = [genome_controller(genome, config) for genome_id, genome in genomes]
+#     global gameObj
+#     for i in range(80):
+#         if gameObj is None:
+#             gameObj = game.Game(controllers)
+#         else:
+#             gameObj.reset(controllers)
+#         while True:
+#             if gameObj.update() == False:
+#                 break
+#     for controller in controllers:
+#         controller.calc_fitness()
+    
+#     print("Best fitness: ",best_fitness[0],"genome ",best_fitness[1].key)
+#     print("Highest score: ",highest_score)
 
 # def eval_genomes(genomes, config,split=2):
 #     pygame.init()
@@ -128,12 +135,12 @@ def eval_genomes(genomes, config):
 #         controller.calc_fitness()
 
 def run_neat(config):
-    p = neat.Checkpointer.restore_checkpoint("neat-checkpoint-121")
+    p = neat.Checkpointer.restore_checkpoint("neat-checkpoint-901")
     # p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(5))
+    p.add_reporter(neat.Checkpointer(1))
 
     p.run(eval_genomes, 1000) 
 
