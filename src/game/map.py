@@ -110,6 +110,11 @@ class RoadSection(pygame.sprite.Sprite):
             next_section = next_section.next_section
             self.sections_to_draw.append(next_section)
         return self.sections_to_draw
+    
+    def get_next_section(self):
+        if self.next_section is None:
+            self.road_section_manager.generate_sections(1)
+        return self.next_section
 
     def add_player(self, player):
         self.players_on_section.add(player)

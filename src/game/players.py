@@ -125,20 +125,19 @@ class Player(pygame.sprite.Sprite):
         input.append(
             self.sections[0].get_obstacal_positions_relative_to_player(self)
         )  # current section
+        next_section = self.sections[0].get_next_section()
         input.append(
-            self.sections[0].next_section.get_obstacal_positions_relative_to_player(
+            next_section.get_obstacal_positions_relative_to_player(
                 self
             )
         )  # section after section
+        next_section = next_section.get_next_section()
         input.append(
-            self.sections[
-                0
-            ].next_section.next_section.get_obstacal_positions_relative_to_player(self)
+            next_section.get_obstacal_positions_relative_to_player(self)
         )  # section after section
+        next_section = next_section.get_next_section()
         input.append(
-            self.sections[
-                0
-            ].next_section.next_section.next_section.get_obstacal_positions_relative_to_player(
+            next_section.get_obstacal_positions_relative_to_player(
                 self
             )
         )  # section after section
